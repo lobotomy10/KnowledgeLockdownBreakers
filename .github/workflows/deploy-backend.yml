@@ -1,10 +1,11 @@
-name: Deploy Backend
+name: Deploy to Vercel
 
 on:
   push:
     branches: [ main ]
     paths:
       - 'backend/**'
+      - 'frontend/**'
       - '.github/workflows/deploy-backend.yml'
 
 jobs:
@@ -19,19 +20,13 @@ jobs:
         with:
           python-version: '3.12'
           
-      - name: Install dependencies
+      - name: Install backend dependencies
         run: |
           cd backend
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./backend
-          
-      - name: Setup Node.js for serverless deployment
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -39,11 +34,21 @@ jobs:
       - name: Install Vercel CLI
         run: npm install -g vercel
         
-      - name: Deploy to Vercel
+      - name: Deploy Backend to Vercel
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
           cd backend
+          vercel deploy --prod --token $VERCEL_TOKEN
+          
+      - name: Deploy Frontend to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+        run: |
+          cd frontend
           vercel deploy --prod --token $VERCEL_TOKEN
