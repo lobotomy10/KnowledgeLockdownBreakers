@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus, Heart, X, Coins } from "lucide-react"
@@ -9,8 +9,11 @@ interface KnowledgeCard {
   id: string;
   title: string;
   content: string;
-  author: string;
-  likes: number;
+  author_id: string;
+  media_urls?: string[];
+  tags?: string[];
+  correct_count: number;
+  created_at: string;
 }
 
 function App() {
@@ -36,23 +39,30 @@ function App() {
     setTokens(15)
   }
   
-  // Mock data - in production this would come from API
-  const cards: KnowledgeCard[] = [
-    {
-      id: '1',
-      title: 'React Best Practices',
-      content: 'Always use functional components and hooks for better code organization and reusability.',
-      author: '@reactdev',
-      likes: 123,
-    },
-    {
-      id: '2',
-      title: 'TypeScript Tips',
-      content: 'Use interfaces over types when you need to extend or implement.',
-      author: '@tsexpert',
-      likes: 89,
-    },
-  ]
+  const [cards, setCards] = useState<KnowledgeCard[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  // Fetch cards from API
+  useEffect(() => {
+    const fetchCards = async () => {
+      try {
+        const response = await fetch('https://cardnote-backend-wbgoevjh.fly.dev/api/cards/feed')
+        if (!response.ok) {
+          throw new Error('Failed to fetch cards')
+        }
+        const data = await response.json()
+        setCards(data.sort((a: KnowledgeCard, b: KnowledgeCard) => 
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        ))
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load cards')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchCards()
+  }, [])
 
   const handleSwipe = (direction: 'left' | 'right') => {
     if (direction === 'right') {
@@ -96,7 +106,13 @@ function App() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        {currentCardIndex < cards.length ? (
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+          </div>
+        ) : error ? (
+          <div className="text-center text-red-500">{error}</div>
+        ) : currentCardIndex < cards.length ? (
           <div className="max-w-sm mx-auto">
             {/* Knowledge Card */}
             <Card className="w-full aspect-[3/4] relative">
@@ -106,8 +122,8 @@ function App() {
                   {cards[currentCardIndex].content}
                 </p>
                 <div className="mt-4 text-sm text-gray-500">
-                  <p>{cards[currentCardIndex].author}</p>
-                  <p>❤️ {cards[currentCardIndex].likes}</p>
+                  <p>By: {cards[currentCardIndex].author_id}</p>
+                  <p>❤️ {cards[currentCardIndex].correct_count}</p>
                 </div>
               </div>
             </Card>

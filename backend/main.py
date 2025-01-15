@@ -97,20 +97,59 @@ async def upload_media(files: List[UploadFile] = File(...)):
         saved_paths.append(f"/static/{new_filename}")
     return {"media_urls": saved_paths}
 
+def get_user_post_count(user_id: str) -> int:
+    """Get the number of posts a user has made."""
+    return len([card for card in cards.values() if card["author_id"] == user_id])
+
+def generate_ai_cards(count: int = 5) -> List[dict]:
+    """Generate AI-powered knowledge cards."""
+    ai_cards = []
+    topics = [
+        ("Python Tips", "Use list comprehensions for cleaner code and better performance."),
+        ("Git Workflow", "Always create a new branch for each feature or bugfix."),
+        ("Code Review", "Review your own code first before submitting for review."),
+        ("Testing", "Write tests before implementing the feature (TDD)."),
+        ("Documentation", "Document your code as you write it, not after.")
+    ]
+    
+    for i in range(min(count, len(topics))):
+        title, content = topics[i]
+        card_id = str(uuid.uuid4())
+        ai_cards.append({
+            "id": card_id,
+            "title": title,
+            "content": content,
+            "author_id": "ai_assistant",
+            "media_urls": [],
+            "tags": ["tips", "best_practices"],
+            "correct_count": 0,
+            "created_at": datetime.now()
+        })
+    return ai_cards
+
 @app.post("/api/cards", response_model=CardResponse)
-async def create_card(card: KnowledgeCard):
+async def create_card(card: KnowledgeCard, user_id: str = "mock_user_id"):  # In production, get from auth
     card_id = str(uuid.uuid4())
-    cards[card_id] = {
+    new_card = {
         "id": card_id,
         "title": card.title,
         "content": card.content,
-        "author_id": "mock_user_id",  # Would come from auth in production
+        "author_id": user_id,
         "media_urls": card.media_urls or [],
         "tags": card.tags or [],
         "correct_count": 0,
         "created_at": datetime.now()
     }
-    return cards[card_id]
+    cards[card_id] = new_card
+    
+    # Check if this is the user's first post
+    if get_user_post_count(user_id) == 1:
+        # Generate and add 5 AI cards
+        ai_cards = generate_ai_cards()
+        for ai_card in ai_cards:
+            cards[ai_card["id"]] = ai_card
+    
+    return new_card
 
 @app.get("/api/cards/feed", response_model=List[CardResponse])
 async def get_card_feed():

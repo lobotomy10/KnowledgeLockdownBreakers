@@ -74,11 +74,22 @@ export default function CreateCard({ onClose, onSave }: CreateCardProps) {
                   }),
                 });
                 
-                if (createCardResponse.ok && onSave) {
+                if (!createCardResponse.ok) {
+                  throw new Error('Failed to create card');
+                }
+
+                // After successful card creation, fetch the updated feed
+                const feedResponse = await fetch("https://cardnote-backend-wbgoevjh.fly.dev/api/cards/feed");
+                if (!feedResponse.ok) {
+                  throw new Error('Failed to fetch updated feed');
+                }
+
+                if (onSave) {
                   await onSave();
                 }
               } catch (error) {
                 console.error("Failed to create card:", error);
+                // TODO: Add proper error handling UI
               }
             }}
             className="text-xl p-2 hover:bg-gray-100/80 rounded-full transition-colors"
