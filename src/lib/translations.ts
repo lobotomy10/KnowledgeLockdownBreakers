@@ -3,6 +3,20 @@ export type Language = 'en' | 'ja';
 export const translations = {
   en: {
     appName: "CardNote",
+    tutorialSteps: {
+      welcome: {
+        title: "Welcome to CardNote!",
+        content: "Learn and share knowledge through bite-sized cards. Swipe right to save useful knowledge, or left to skip."
+      },
+      tokenEconomy: {
+        title: "Token Economy",
+        content: "Earn 5 tokens for creating cards. Spend 2 tokens to save useful knowledge cards."
+      },
+      createCards: {
+        title: "Create Knowledge Cards",
+        content: "Share your knowledge by creating cards. Add text, images, or videos to make your cards more engaging."
+      }
+    },
     noCards: "No cards to review!",
     createNewCard: "Create a new card",
     title: "Title",
@@ -29,6 +43,20 @@ export const translations = {
   },
   ja: {
     appName: "カードノート",
+    tutorialSteps: {
+      welcome: {
+        title: "カードノートへようこそ！",
+        content: "短いカードで知識を学び、共有しましょう。右スワイプで役立つ知識を保存、左スワイプでスキップします。"
+      },
+      tokenEconomy: {
+        title: "トークンエコノミー",
+        content: "カードを作成すると5トークンを獲得。役立つ知識カードを保存するには2トークンを使用します。"
+      },
+      createCards: {
+        title: "知識カードを作成",
+        content: "知識カードを作成して知識を共有しましょう。テキスト、画像、動画を追加してカードをより魅力的にできます。"
+      }
+    },
     noCards: "レビューするカードがありません！",
     createNewCard: "新しいカードを作成",
     title: "タイトル",

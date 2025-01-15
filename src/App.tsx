@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Plus, Heart, X, Coins, Languages } from "lucide-react"
 import CreateCard from './CreateCard'
 import { translations, type Language } from '@/lib/translations'
+import { TutorialOverlay } from './components/TutorialOverlay'
 import { Signup } from '@/components/Signup'
 
 interface KnowledgeCard {
@@ -18,6 +19,10 @@ interface KnowledgeCard {
 }
 
 function App() {
+  const [showTutorial, setShowTutorial] = useState(() => {
+    const hasSeenTutorial = localStorage.getItem('hasSeenTutorial')
+    return !hasSeenTutorial
+  })
   const [language, setLanguage] = useState<Language>(() => {
     const savedLanguage = localStorage.getItem('language')
     return (savedLanguage === 'ja' ? 'ja' : 'en') as Language
@@ -238,6 +243,17 @@ function App() {
           )}
         </div>
       </main>
+
+      {/* Tutorial Overlay */}
+      {showTutorial && (
+        <TutorialOverlay
+          onClose={() => {
+            setShowTutorial(false)
+            localStorage.setItem('hasSeenTutorial', 'true')
+          }}
+          language={language}
+        />
+      )}
     </div>
   )
 }
