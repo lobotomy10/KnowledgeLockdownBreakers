@@ -117,8 +117,8 @@ function App() {
           {showCreateCard && (
             <CreateCard
               onClose={() => setShowCreateCard(false)}
-              onSave={() => {
-                // TODO: Implement card saving logic
+              onSave={async () => {
+                // Card saving is now handled in CreateCard component
                 setShowCreateCard(false)
               }}
             />

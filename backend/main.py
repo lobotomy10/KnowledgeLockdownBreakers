@@ -83,6 +83,20 @@ async def signup(user: User):
     }
     return users[user_id]
 
+@app.post("/api/upload/media")
+async def upload_media(files: List[UploadFile] = File(...)):
+    saved_paths = []
+    for file in files:
+        # Save file to /uploads
+        file_extension = file.filename.split(".")[-1]
+        unique_id = str(uuid.uuid4())
+        new_filename = f"{unique_id}.{file_extension}"
+        file_path = os.path.join("uploads", new_filename)
+        with open(file_path, "wb") as buffer:
+            buffer.write(await file.read())
+        saved_paths.append(f"/static/{new_filename}")
+    return {"media_urls": saved_paths}
+
 @app.post("/api/cards", response_model=CardResponse)
 async def create_card(card: KnowledgeCard):
     card_id = str(uuid.uuid4())
