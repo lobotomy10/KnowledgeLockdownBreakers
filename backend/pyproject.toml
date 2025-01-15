@@ -17,7 +17,6 @@ pydantic = "^2.6.1"
 python-multipart = "^0.0.9"
 python-jose = "^3.3.0"
 passlib = "^1.7.4"
-web3 = "^6.15.1"
 
 [build-system]
 requires = ["poetry-core"]
