@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { Card } from "@/components/ui/card";
+import { translations, type Language } from '@/lib/translations';
 
 interface CreateCardProps {
   onClose?: () => void;
   onSave?: () => Promise<void>;
+  language: Language;
 }
 
-export default function CreateCard({ onClose, onSave }: CreateCardProps) {
+export default function CreateCard({ onClose, onSave, language }: CreateCardProps) {
+  const t = translations[language];
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [selectedMedia, setSelectedMedia] = useState<FileList | null>(null);
@@ -40,7 +43,7 @@ export default function CreateCard({ onClose, onSave }: CreateCardProps) {
           >
             ✕
           </button>
-          <span className="text-lg">Preview</span>
+          <span className="text-lg">{t.preview}</span>
           <button 
             onClick={async () => {
               let uploadedMediaUrls: string[] = [];
@@ -101,14 +104,14 @@ export default function CreateCard({ onClose, onSave }: CreateCardProps) {
         {/* Title Input */}
         <div className="mb-6">
           <label className="block font-semibold mb-2">
-            Title
+            {t.title}
           </label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Enter knowledge title"
+            placeholder={language === 'en' ? "Enter knowledge title" : "タイトルを入力"}
           />
         </div>
 
@@ -127,7 +130,7 @@ export default function CreateCard({ onClose, onSave }: CreateCardProps) {
             className="inline-flex items-center justify-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
           >
             <span className="text-2xl mr-2">📷</span>
-            <span className="font-medium">Add Media</span>
+            <span className="font-medium">{t.addMedia}</span>
           </label>
           
           {/* Media Previews */}
@@ -159,13 +162,13 @@ export default function CreateCard({ onClose, onSave }: CreateCardProps) {
         {/* Content Input */}
         <div className="mb-6">
           <label className="block font-semibold mb-2">
-            Content
+            {t.content}
           </label>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Share your knowledge..."
+            placeholder={t.shareKnowledge}
             rows={8}
           />
         </div>
@@ -179,7 +182,7 @@ export default function CreateCard({ onClose, onSave }: CreateCardProps) {
             🎥
           </button>
           <button className="text-lg px-4 py-2 border rounded-lg hover:bg-gray-100">
-            # タグ
+            # {t.tags}
           </button>
         </div>
       </div>

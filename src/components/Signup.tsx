@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
+import { translations, type Language } from '@/lib/translations'
 
 interface SignupResponse {
   id: string
@@ -16,9 +17,11 @@ interface SignupProps {
   setIsAuthenticated: (value: boolean) => void
   setUser: (user: SignupResponse | null) => void
   setTokens: (tokens: number) => void
+  language: Language
 }
 
-export function Signup({ setIsAuthenticated, setUser, setTokens }: SignupProps) {
+export function Signup({ setIsAuthenticated, setUser, setTokens, language }: SignupProps) {
+  const t = translations[language]
   const [email, setEmail] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -67,13 +70,13 @@ export function Signup({ setIsAuthenticated, setUser, setTokens }: SignupProps) 
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Sign Up for CardNote</CardTitle>
+          <CardTitle>{t.signUpTitle}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
+                {t.email}
               </label>
               <input
                 type="email"
@@ -85,19 +88,19 @@ export function Signup({ setIsAuthenticated, setUser, setTokens }: SignupProps) 
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Username
+                {t.username}
               </label>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Choose a username"
+                placeholder={language === 'en' ? "Choose a username" : "ユーザー名を選択"}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Password
+                {t.password}
               </label>
               <input
                 type="password"
@@ -108,7 +111,11 @@ export function Signup({ setIsAuthenticated, setUser, setTokens }: SignupProps) 
               />
             </div>
             {error && (
-              <div className="text-red-500 text-sm">{error}</div>
+              <div className="text-red-500 text-sm">
+                {error === 'All fields are required' ? t.error.required : 
+                 error === 'Signup failed' ? t.error.signupFailed :
+                 error}
+              </div>
             )}
             <Button 
               className="w-full"
@@ -118,10 +125,10 @@ export function Signup({ setIsAuthenticated, setUser, setTokens }: SignupProps) 
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating Account...
+                  {language === 'en' ? "Creating Account..." : "アカウント作成中..."}
                 </>
               ) : (
-                'Create Account'
+                t.createAccount
               )}
             </Button>
           </div>

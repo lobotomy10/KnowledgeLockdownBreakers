@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, Heart, X, Coins } from "lucide-react"
+import { Plus, Heart, X, Coins, Languages } from "lucide-react"
 import CreateCard from './CreateCard'
+import { translations, type Language } from '@/lib/translations'
 import { Signup } from '@/components/Signup'
 
 interface KnowledgeCard {
@@ -17,6 +18,12 @@ interface KnowledgeCard {
 }
 
 function App() {
+  const [language, setLanguage] = useState<Language>(() => {
+    const savedLanguage = localStorage.getItem('language')
+    return (savedLanguage === 'ja' ? 'ja' : 'en') as Language
+  })
+  const t = translations[language]
+
   const [currentCardIndex, setCurrentCardIndex] = useState(0)
   const [showCreateCard, setShowCreateCard] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -117,6 +124,7 @@ function App() {
       setIsAuthenticated={setIsAuthenticated}
       setUser={setUser}
       setTokens={setTokens}
+      language={language}
     />
   }
 
@@ -124,22 +132,34 @@ function App() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white/95 backdrop-blur-sm shadow-sm p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">CardNote</h1>
+        <h1 className="text-xl font-bold">{t.appName}</h1>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <Coins className="text-yellow-500" />
             <span className="font-semibold">{tokens}</span>
             {/* Token change indicator */}
             <span className="text-sm text-gray-500">
-              (Correct: -2)
+              {t.correctSwipe}
             </span>
           </div>
           <Button
             variant="outline"
             size="sm"
+            onClick={() => {
+              const newLang = language === 'en' ? 'ja' : 'en'
+              setLanguage(newLang)
+              localStorage.setItem('language', newLang)
+            }}
+          >
+            <Languages className="h-4 w-4 mr-2" />
+            {language.toUpperCase()}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={handleLogout}
           >
-            Logout
+            {t.logout}
           </Button>
         </div>
       </header>
@@ -190,9 +210,9 @@ function App() {
           </div>
         ) : (
           <div className="text-center">
-            <p className="text-xl text-gray-600 mb-4">レビューするカードがありません！</p>
+            <p className="text-xl text-gray-600 mb-4">{t.noCards}</p>
             <Button onClick={() => setShowCreateCard(true)}>
-              新しいカードを作成
+              {t.createNewCard}
             </Button>
           </div>
         )}
@@ -213,6 +233,7 @@ function App() {
                 // Card saving is now handled in CreateCard component
                 setShowCreateCard(false)
               }}
+              language={language}
             />
           )}
         </div>
