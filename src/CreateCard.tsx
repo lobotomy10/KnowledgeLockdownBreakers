@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { useTranslation } from 'react-i18next';
 
 interface CreateCardProps {
   onClose?: () => void;
@@ -7,6 +8,7 @@ interface CreateCardProps {
 }
 
 export default function CreateCard({ onClose, onSave }: CreateCardProps) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [selectedMedia, setSelectedMedia] = useState<FileList | null>(null);
@@ -30,147 +32,145 @@ export default function CreateCard({ onClose, onSave }: CreateCardProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-white/95 backdrop-blur-sm z-50">
-      <div className="p-4 max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <button 
-            onClick={onClose}
-            className="text-xl p-2 hover:bg-gray-100/80 rounded-full transition-colors"
-          >
-            ✕
-          </button>
-          <span className="text-lg">Preview</span>
-          <button 
-            onClick={async () => {
-              let uploadedMediaUrls: string[] = [];
-              if (selectedMedia) {
-                const formData = new FormData();
-                for (let i = 0; i < selectedMedia.length; i++) {
-                  formData.append("files", selectedMedia[i]);
-                }
-                try {
-                  const response = await fetch("https://cardnote-backend-wbgoevjh.fly.dev/api/upload/media", {
-                    method: "POST",
-                    body: formData,
-                  });
-                  const data = await response.json();
-                  uploadedMediaUrls = data.media_urls || [];
-                } catch (error) {
-                  console.error("Failed to upload media:", error);
-                }
-              }
-
-              // Create the card with media URLs
-              try {
-                const createCardResponse = await fetch("https://cardnote-backend-wbgoevjh.fly.dev/api/cards", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    title,
-                    content,
-                    media_urls: uploadedMediaUrls,
-                    tags: [],
-                  }),
-                });
-                
-                if (createCardResponse.ok && onSave) {
-                  await onSave();
-                }
-              } catch (error) {
-                console.error("Failed to create card:", error);
-              }
-            }}
-            className="text-xl p-2 hover:bg-gray-100/80 rounded-full transition-colors"
-          >
-            ✓
-          </button>
-        </div>
-
-        {/* Title Input */}
-        <div className="mb-6">
-          <label className="block font-semibold mb-2">
-            Title
-          </label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Enter knowledge title"
-          />
-        </div>
-
-        {/* Media Upload */}
-        <div className="mb-6">
-          <input
-            type="file"
-            multiple
-            accept="image/*,video/*"
-            onChange={handleMediaChange}
-            className="hidden"
-            id="media-upload"
-          />
-          <label 
-            htmlFor="media-upload" 
-            className="inline-flex items-center justify-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-          >
-            <span className="text-2xl mr-2">📷</span>
-            <span className="font-medium">Add Media</span>
-          </label>
-          
-          {/* Media Previews */}
-          {previews.length > 0 && (
-            <div className="mt-4 space-y-4">
-              {previews.map((preview, index) => (
-                <Card key={index} className="overflow-hidden">
-                  <div className="relative aspect-video">
-                    {preview.startsWith('data:video') ? (
-                      <video
-                        src={preview}
-                        className="w-full h-full object-cover"
-                        controls
-                      />
-                    ) : (
-                      <img
-                        src={preview}
-                        alt={`Preview ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    )}
-                  </div>
-                </Card>
-              ))}
+    <div className="absolute top-16 left-0 right-0 min-h-[calc(100vh-4rem)] bg-white/95 backdrop-blur-sm z-40">
+      <div className="p-4 max-w-2xl mx-auto relative">
+        <Card className="w-full">
+          <CardContent className="space-y-6">
+            {/* Title Input */}
+            <div>
+              <label className="block font-semibold mb-2">
+                {t("Title")}
+              </label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                placeholder={t("Enter knowledge title")}
+              />
             </div>
-          )}
-        </div>
 
-        {/* Content Input */}
-        <div className="mb-6">
-          <label className="block font-semibold mb-2">
-            Content
-          </label>
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Share your knowledge..."
-            rows={8}
-          />
-        </div>
+            {/* Media Upload */}
+            <div>
+              <input
+                type="file"
+                multiple
+                accept="image/*,video/*"
+                onChange={handleMediaChange}
+                className="hidden"
+                id="media-upload"
+              />
+              <label 
+                htmlFor="media-upload" 
+                className="inline-flex items-center justify-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors bg-white"
+              >
+                <span className="text-2xl mr-2">📷</span>
+                <span className="font-medium">{t("Add Media")}</span>
+              </label>
+              
+              {/* Media Previews */}
+              {previews.length > 0 && (
+                <div className="mt-4 grid grid-cols-2 gap-4">
+                  {previews.map((preview, index) => (
+                    <div key={index} className="overflow-hidden rounded-lg border">
+                      <div className="relative aspect-video">
+                        {preview.startsWith('data:video') ? (
+                          <video
+                            src={preview}
+                            className="w-full h-full object-cover"
+                            controls
+                          />
+                        ) : (
+                          <img
+                            src={preview}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-4">
-          <button className="text-lg px-4 py-2 border rounded-lg hover:bg-gray-100">
-            📷
-          </button>
-          <button className="text-lg px-4 py-2 border rounded-lg hover:bg-gray-100">
-            🎥
-          </button>
-          <button className="text-lg px-4 py-2 border rounded-lg hover:bg-gray-100">
-            # タグ
-          </button>
-        </div>
+            {/* Content Input */}
+            <div>
+              <label className="block font-semibold mb-2">
+                {t("Content")}
+              </label>
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                placeholder={t("Share your knowledge...")}
+                rows={8}
+              />
+            </div>
+
+            {/* Tags */}
+            <div className="flex gap-4">
+              <button className="text-lg px-4 py-2 border rounded-lg hover:bg-gray-100">
+                # {t("Tags")}
+              </button>
+            </div>
+          </CardContent>
+
+          <CardFooter className="flex justify-end gap-4 border-t">
+            <button 
+              onClick={onClose}
+              className="text-xl p-2 hover:bg-gray-100/80 rounded-full transition-colors"
+            >
+              ✕
+            </button>
+          </CardFooter>
+        </Card>
+
+        {/* Check Button outside card */}
+        <button 
+          onClick={async () => {
+            let uploadedMediaUrls: string[] = [];
+            if (selectedMedia) {
+              const formData = new FormData();
+              for (let i = 0; i < selectedMedia.length; i++) {
+                formData.append("files", selectedMedia[i]);
+              }
+              try {
+                const response = await fetch("https://cardnote-backend-wbgoevjh.fly.dev/api/upload/media", {
+                  method: "POST",
+                  body: formData,
+                });
+                const data = await response.json();
+                uploadedMediaUrls = data.media_urls || [];
+              } catch (error) {
+                console.error("Failed to upload media:", error);
+              }
+            }
+
+            // Create the card with media URLs
+            try {
+              const createCardResponse = await fetch("https://cardnote-backend-wbgoevjh.fly.dev/api/cards", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  title,
+                  content,
+                  media_urls: uploadedMediaUrls,
+                  tags: [],
+                }),
+              });
+              
+              if (createCardResponse.ok && onSave) {
+                await onSave();
+              }
+            } catch (error) {
+              console.error("Failed to create card:", error);
+            }
+          }}
+          className="absolute right-8 -bottom-16 text-xl p-4 bg-white hover:bg-gray-100/80 rounded-full transition-colors shadow-md"
+        >
+          ✓
+        </button>
       </div>
     </div>
   );

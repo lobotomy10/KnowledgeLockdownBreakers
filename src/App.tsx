@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus, Heart, X, Coins } from "lucide-react"
 import CreateCard from './CreateCard'
+import { useTranslation } from 'react-i18next'
 
 interface KnowledgeCard {
   id: string;
@@ -13,7 +14,12 @@ interface KnowledgeCard {
 }
 
 function App() {
+  const { t, i18n } = useTranslation()
   const [tokens, setTokens] = useState(15)
+
+  const handleLanguageChange = (lang: "en" | "ja") => {
+    i18n.changeLanguage(lang)
+  }
   const [currentCardIndex, setCurrentCardIndex] = useState(0)
   const [showCreateCard, setShowCreateCard] = useState(false)
   
@@ -46,15 +52,40 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white/95 backdrop-blur-sm shadow-sm p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">CardNote</h1>
-        <div className="flex items-center gap-2">
-          <Coins className="text-yellow-500" />
-          <span className="font-semibold">{tokens}</span>
-          {/* Token change indicator */}
-          <span className="text-sm text-gray-500">
-            (Correct: -2)
-          </span>
+      <header className="bg-white/95 backdrop-blur-sm shadow-sm p-4 flex justify-between items-center sticky top-0 z-50">
+        <div className="flex items-center gap-8">
+          <h1 className="text-xl font-bold">{t("CardNote")}</h1>
+          {showCreateCard && (
+            <span className="text-lg text-gray-600">{t("Preview")}</span>
+          )}
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Coins className="text-yellow-500" />
+            <span className="font-semibold">{tokens}</span>
+            {/* Token change indicator */}
+            <span className="text-sm text-gray-500">
+              (Correct: -2)
+            </span>
+          </div>
+          <div className="flex items-center gap-1 border rounded-lg overflow-hidden">
+            <button
+              onClick={() => handleLanguageChange("en")}
+              className={`px-3 py-1 text-sm transition-colors ${
+                i18n.language === "en" ? "bg-primary text-white" : "hover:bg-gray-100"
+              }`}
+            >
+              EN
+            </button>
+            <button
+              onClick={() => handleLanguageChange("ja")}
+              className={`px-3 py-1 text-sm transition-colors ${
+                i18n.language === "ja" ? "bg-primary text-white" : "hover:bg-gray-100"
+              }`}
+            >
+              JA
+            </button>
+          </div>
         </div>
       </header>
 
@@ -98,9 +129,9 @@ function App() {
           </div>
         ) : (
           <div className="text-center">
-            <p className="text-xl text-gray-600 mb-4">レビューするカードがありません！</p>
+            <p className="text-xl text-gray-600 mb-4">{t("No cards to review!")}</p>
             <Button onClick={() => setShowCreateCard(true)}>
-              新しいカードを作成
+              {t("Create New Card")}
             </Button>
           </div>
         )}
