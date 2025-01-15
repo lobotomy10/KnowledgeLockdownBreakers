@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 import uuid
 import os
@@ -67,8 +67,16 @@ class NFTMintRequest(BaseModel):
     card_id: str
     user_address: str
 
+class TokenTransaction(BaseModel):
+    user_id: str
+    amount: int
+    transaction_type: str  # "create_card", "correct_swipe", "unnecessary_swipe"
+    card_id: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.now)
+
 class CardInteraction(BaseModel):
     interaction_type: str
+    user_id: str
 
 @app.post("/api/auth/signup", response_model=UserResponse)
 async def signup(user: User):
@@ -81,6 +89,15 @@ async def signup(user: User):
         "token_balance": 15,  # Initial balance
         "created_at": datetime.now()
     }
+    
+    # Record initial token balance as a transaction
+    transaction_id = str(uuid.uuid4())
+    token_transactions[transaction_id] = TokenTransaction(
+        user_id=user_id,
+        amount=15,
+        transaction_type="initial_balance"
+    ).dict()
+    
     return users[user_id]
 
 @app.post("/api/upload/media")
@@ -127,8 +144,29 @@ def generate_ai_cards(count: int = 5) -> List[dict]:
         })
     return ai_cards
 
+def update_user_balance(user_id: str, amount: int, transaction_type: str, card_id: Optional[str] = None) -> int:
+    """Update user's token balance and record the transaction."""
+    if user_id not in users:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    users[user_id]["token_balance"] += amount
+    
+    # Record transaction
+    transaction_id = str(uuid.uuid4())
+    token_transactions[transaction_id] = TokenTransaction(
+        user_id=user_id,
+        amount=amount,
+        transaction_type=transaction_type,
+        card_id=card_id
+    ).dict()
+    
+    return users[user_id]["token_balance"]
+
 @app.post("/api/cards", response_model=CardResponse)
 async def create_card(card: KnowledgeCard, user_id: str = "mock_user_id"):  # In production, get from auth
+    # Award tokens for creating a card (+5 tokens)
+    new_balance = update_user_balance(user_id, 5, "create_card")
+    
     card_id = str(uuid.uuid4())
     new_card = {
         "id": card_id,
@@ -141,6 +179,14 @@ async def create_card(card: KnowledgeCard, user_id: str = "mock_user_id"):  # In
         "created_at": datetime.now()
     }
     cards[card_id] = new_card
+    
+    # Update transaction with card_id
+    for transaction in token_transactions.values():
+        if (transaction["transaction_type"] == "create_card" and 
+            transaction["user_id"] == user_id and 
+            transaction["card_id"] is None):
+            transaction["card_id"] = card_id
+            break
     
     # Check if this is the user's first post
     if get_user_post_count(user_id) == 1:
@@ -165,12 +211,39 @@ async def interact_with_card(
     
     if interaction.interaction_type == "correct":
         cards[card_id]["correct_count"] += 1
-        return {"message": "Card marked as correct", "token_change": -2}
+        # Deduct 2 tokens for marking as correct
+        new_balance = update_user_balance(
+            interaction.user_id,
+            -2,
+            "correct_swipe",
+            card_id
+        )
+        return {
+            "message": "Card marked as correct",
+            "token_change": -2,
+            "new_balance": new_balance
+        }
+    elif interaction.interaction_type == "unnecessary":
+        # No token deduction for unnecessary swipes
+        return {
+            "message": "Card marked as unnecessary",
+            "token_change": 0,
+            "new_balance": users[interaction.user_id]["token_balance"]
+        }
+    
     raise HTTPException(status_code=400, detail="Invalid interaction type")
 
-@app.get("/api/tokens/balance")
-async def get_token_balance():
-    return {"balance": 15}  # Mock balance
+@app.get("/api/tokens/balance/{user_id}")
+async def get_token_balance(user_id: str):
+    if user_id not in users:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {
+        "balance": users[user_id]["token_balance"],
+        "transactions": [
+            tx for tx in token_transactions.values()
+            if tx["user_id"] == user_id
+        ]
+    }
 
 @app.get("/api/cards/{card_id}/nft-eligibility")
 async def check_nft_eligibility(card_id: str):

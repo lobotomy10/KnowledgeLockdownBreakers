@@ -30,6 +30,26 @@ function App() {
   
   // Use token balance from authenticated user
   const [tokens, setTokens] = useState(() => user?.token_balance ?? 15)
+
+  // Fetch user's token balance
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchTokenBalance = async () => {
+      try {
+        const response = await fetch(`https://cardnote-backend-wbgoevjh.fly.dev/api/tokens/balance/${user.id}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch token balance');
+        }
+        const data = await response.json();
+        setTokens(data.balance);
+      } catch (err) {
+        console.error('Failed to fetch token balance:', err);
+      }
+    };
+
+    fetchTokenBalance();
+  }, [user]);
   
   // Handle user logout
   const handleLogout = () => {
@@ -64,12 +84,32 @@ function App() {
     fetchCards()
   }, [])
 
-  const handleSwipe = (direction: 'left' | 'right') => {
-    if (direction === 'right') {
-      // Correct - save card and deduct tokens
-      setTokens(prev => prev - 2)
+  const handleSwipe = async (direction: 'left' | 'right') => {
+    if (!user) return;
+
+    try {
+      const response = await fetch(`https://cardnote-backend-wbgoevjh.fly.dev/api/cards/${cards[currentCardIndex].id}/interact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          interaction_type: direction === 'right' ? 'correct' : 'unnecessary',
+          user_id: user.id
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to process interaction');
+      }
+
+      const data = await response.json();
+      setTokens(data.new_balance);
+    } catch (err) {
+      console.error('Failed to process swipe:', err);
     }
-    setCurrentCardIndex(prev => prev + 1)
+
+    setCurrentCardIndex(prev => prev + 1);
   }
 
   if (!isAuthenticated) {
