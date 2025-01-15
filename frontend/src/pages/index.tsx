@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, Heart, X, Coins } from "lucide-react"
+import { Plus, Heart, X, Coins, Menu, Check, User, FileText } from "lucide-react"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import CreateCard from './CreateCard'
 
 interface KnowledgeCard {
@@ -38,15 +39,15 @@ function App() {
   const handleSwipe = (direction: 'left' | 'right') => {
     if (direction === 'right') {
       // Correct - save card and deduct tokens
-      setTokens(prev => prev - 2)
+      setTokens((prev: number) => prev - 2)
     }
-    setCurrentCardIndex(prev => prev + 1)
+    setCurrentCardIndex((prev: number) => prev + 1)
   }
 
   return (
     <div className="min-h-screen bg-blue-50">
       {/* Header */}
-      <header className="bg-white shadow-sm p-4 flex justify-between items-center">
+      <header className="fixed top-0 left-0 right-0 bg-white shadow-sm p-4 flex justify-between items-center z-40">
         <h1 className="text-xl font-bold">CardNote</h1>
         <div className="flex items-center gap-2">
           <Coins className="text-yellow-500" />
@@ -55,11 +56,36 @@ function App() {
           <span className="text-sm text-gray-500">
             (Correct: -2)
           </span>
+
+          {/* Hamburger Menu Trigger */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <button className="p-2 hover:bg-gray-100 rounded-full">
+                <Menu className="w-6 h-6" />
+              </button>
+            </SheetTrigger>
+            <SheetContent side="left" className="p-4">
+              <nav className="flex flex-col space-y-4">
+                <button className="text-lg font-semibold flex items-center gap-2 hover:bg-gray-100 p-2 rounded-lg">
+                  <Check className="w-5 h-5" />
+                  Correct済みカード
+                </button>
+                <button className="text-lg font-semibold flex items-center gap-2 hover:bg-gray-100 p-2 rounded-lg">
+                  <User className="w-5 h-5" />
+                  プロフィール
+                </button>
+                <button className="text-lg font-semibold flex items-center gap-2 hover:bg-gray-100 p-2 rounded-lg">
+                  <FileText className="w-5 h-5" />
+                  作成したカード
+                </button>
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 mt-16">
         {currentCardIndex < cards.length ? (
           <div className="max-w-sm mx-auto">
             {/* Knowledge Card */}
