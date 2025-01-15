@@ -20,7 +20,7 @@ export default function CreateCard({ onClose, onSave }: CreateCardProps) {
           >
             ✕
           </button>
-          <span className="text-lg">プレビュー</span>
+          <span className="text-lg">Preview</span>
           <button 
             onClick={onSave}
             className="text-xl p-2 hover:bg-gray-100/80 rounded-full transition-colors"

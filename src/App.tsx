@@ -98,9 +98,9 @@ function App() {
           </div>
         ) : (
           <div className="text-center">
-            <p className="text-xl text-gray-600 mb-4">レビューするカードがありません！</p>
+            <p className="text-xl text-gray-600 mb-4">No cards to review!</p>
             <Button onClick={() => setShowCreateCard(true)}>
-              新しいカードを作成
+              Create New Card
             </Button>
           </div>
         )}
