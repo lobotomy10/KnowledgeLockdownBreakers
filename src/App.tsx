@@ -13,7 +13,7 @@ interface KnowledgeCard {
 }
 
 function App() {
-  const [tokens, setTokens] = useState(50)
+  const [tokens, setTokens] = useState(15)
   const [currentCardIndex, setCurrentCardIndex] = useState(0)
   const [showCreateCard, setShowCreateCard] = useState(false)
   
@@ -44,9 +44,9 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-blue-50">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm p-4 flex justify-between items-center">
+      <header className="bg-white/95 backdrop-blur-sm shadow-sm p-4 flex justify-between items-center">
         <h1 className="text-xl font-bold">CardNote</h1>
         <div className="flex items-center gap-2">
           <Coins className="text-yellow-500" />
