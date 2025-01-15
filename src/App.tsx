@@ -14,10 +14,27 @@ interface KnowledgeCard {
 }
 
 function App() {
-  const [tokens, setTokens] = useState(15)
   const [currentCardIndex, setCurrentCardIndex] = useState(0)
   const [showCreateCard, setShowCreateCard] = useState(false)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    const userData = localStorage.getItem('user')
+    return !!userData
+  })
+  const [user, setUser] = useState(() => {
+    const userData = localStorage.getItem('user')
+    return userData ? JSON.parse(userData) : null
+  })
+  
+  // Use token balance from authenticated user
+  const [tokens, setTokens] = useState(() => user?.token_balance ?? 15)
+  
+  // Handle user logout
+  const handleLogout = () => {
+    localStorage.removeItem('user')
+    setIsAuthenticated(false)
+    setUser(null)
+    setTokens(15)
+  }
   
   // Mock data - in production this would come from API
   const cards: KnowledgeCard[] = [
@@ -46,7 +63,11 @@ function App() {
   }
 
   if (!isAuthenticated) {
-    return <Signup />
+    return <Signup 
+      setIsAuthenticated={setIsAuthenticated}
+      setUser={setUser}
+      setTokens={setTokens}
+    />
   }
 
   return (
@@ -54,13 +75,22 @@ function App() {
       {/* Header */}
       <header className="bg-white/95 backdrop-blur-sm shadow-sm p-4 flex justify-between items-center">
         <h1 className="text-xl font-bold">CardNote</h1>
-        <div className="flex items-center gap-2">
-          <Coins className="text-yellow-500" />
-          <span className="font-semibold">{tokens}</span>
-          {/* Token change indicator */}
-          <span className="text-sm text-gray-500">
-            (Correct: -2)
-          </span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Coins className="text-yellow-500" />
+            <span className="font-semibold">{tokens}</span>
+            {/* Token change indicator */}
+            <span className="text-sm text-gray-500">
+              (Correct: -2)
+            </span>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleLogout}
+          >
+            Logout
+          </Button>
         </div>
       </header>
 

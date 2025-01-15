@@ -1,6 +1,8 @@
+import * as React from 'react'
 import { useState } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
 
 interface SignupResponse {
   id: string
@@ -10,13 +12,26 @@ interface SignupResponse {
   created_at: string
 }
 
-export function Signup() {
+interface SignupProps {
+  setIsAuthenticated: (value: boolean) => void
+  setUser: (user: SignupResponse | null) => void
+  setTokens: (tokens: number) => void
+}
+
+export function Signup({ setIsAuthenticated, setUser, setTokens }: SignupProps) {
   const [email, setEmail] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSignup = async () => {
+    if (!email || !username || !password) {
+      setError('All fields are required')
+      return
+    }
+    setIsLoading(true)
+    setError('')
     try {
       const response = await fetch('https://cardnote-backend-wbgoevjh.fly.dev/api/auth/signup', {
         method: 'POST',
@@ -35,11 +50,16 @@ export function Signup() {
       }
 
       const data: SignupResponse = await response.json()
-      // TODO: Store user data in context/state management
-      // TODO: Redirect to main app
-      console.log('Signup successful:', data)
+      // Store user data in localStorage for session persistence
+      localStorage.setItem('user', JSON.stringify(data))
+      // Update parent component state through props
+      setIsAuthenticated(true)
+      setUser(data)
+      setTokens(data.token_balance)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -93,8 +113,16 @@ export function Signup() {
             <Button 
               className="w-full"
               onClick={handleSignup}
+              disabled={isLoading}
             >
-              Create Account
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating Account...
+                </>
+              ) : (
+                'Create Account'
+              )}
             </Button>
           </div>
         </CardContent>
