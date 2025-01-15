@@ -6,10 +6,6 @@ from typing import List, Optional
 import uuid
 import os
 from datetime import datetime
-from web3 import Web3
-from eth_account import Account
-from eth_utils import to_checksum_address
-import json
 
 app = FastAPI(title="CardNote API")
 
@@ -32,7 +28,7 @@ app.add_middleware(
 users = {}
 cards = {}
 token_transactions = {}
-nft_cards = {}  # Track NFT status of cards
+swipe_counts = {}  # Track daily swipe counts per user
 
 class User(BaseModel):
     email: str
@@ -61,14 +57,6 @@ class CardResponse(BaseModel):
     tags: Optional[List[str]] = None
     correct_count: int
     created_at: datetime
-    nft_status: Optional[dict] = None
-
-class NFTMintRequest(BaseModel):
-    card_id: str
-    user_address: str
-
-class CardInteraction(BaseModel):
-    interaction_type: str
 
 @app.post("/api/auth/signup", response_model=UserResponse)
 async def signup(user: User):
@@ -102,125 +90,87 @@ async def create_card(card: KnowledgeCard):
 async def get_card_feed():
     return list(cards.values())
 
+class CardInteraction(BaseModel):
+    interaction_type: str
+
 @app.post("/api/cards/{card_id}/interact")
 async def interact_with_card(
     card_id: str,
     interaction: CardInteraction
 ):
+    # In production, user_id would come from auth
+    user_id = "mock_user_id"
+    today = datetime.now().date().isoformat()
+    
+    # Initialize or get today's swipe count
+    if user_id not in swipe_counts:
+        swipe_counts[user_id] = {}
+    if today not in swipe_counts[user_id]:
+        swipe_counts[user_id][today] = 0
+        
+    # Check swipe limit
+    if swipe_counts[user_id][today] >= 20:
+        raise HTTPException(
+            status_code=429,
+            detail="Daily swipe limit (20) reached. Please try again tomorrow."
+        )
+    
     if card_id not in cards:
         raise HTTPException(status_code=404, detail="Card not found")
     
+    # Increment swipe count before processing
+    swipe_counts[user_id][today] += 1
+    
     if interaction.interaction_type == "correct":
+        # Deduct 2 tokens for marking a card as correct
         cards[card_id]["correct_count"] += 1
-        return {"message": "Card marked as correct", "token_change": -2}
+        return {
+            "message": "Card marked as correct",
+            "token_change": -2,
+            "swipes_remaining": 20 - swipe_counts[user_id][today]
+        }
     raise HTTPException(status_code=400, detail="Invalid interaction type")
 
 @app.get("/api/tokens/balance")
 async def get_token_balance():
     return {"balance": 15}  # Mock balance
 
-@app.get("/api/cards/{card_id}/nft-eligibility")
-async def check_nft_eligibility(card_id: str):
-    if card_id not in cards:
-        raise HTTPException(status_code=404, detail="Card not found")
+@app.post("/api/upload")
+async def upload_media(file: UploadFile = File(...)):
+    # Validate file type
+    allowed_image_types = ["image/jpeg", "image/png", "image/gif", "image/webp"]
+    allowed_video_types = ["video/mp4", "video/webm", "video/quicktime"]
+    content_type = file.content_type
     
-    card = cards[card_id]
-    
-    # Check eligibility criteria
-    is_eligible = False
-    reasons = []
-    
-    # High engagement check (100+ correct swipes)
-    if card["correct_count"] >= 100:
-        is_eligible = True
-        reasons.append("high_engagement")
-    
-    # First card of the day check
-    today = datetime.now().date()
-    card_date = card["created_at"].date()
-    if card_date == today:
-        first_card_today = all(
-            c["created_at"].date() != today or c["id"] == card_id
-            for c in cards.values()
-        )
-        if first_card_today:
-            is_eligible = True
-            reasons.append("first_card_of_day")
-    
-    return {
-        "eligible": is_eligible,
-        "reasons": reasons,
-        "requirements": {
-            "correct_count": {
-                "current": card["correct_count"],
-                "required": 100
-            }
-        }
-    }
-
-@app.post("/api/nft/mint")
-async def mint_nft(request: NFTMintRequest):
-    if request.card_id not in cards:
-        raise HTTPException(status_code=404, detail="Card not found")
-    
-    # Check eligibility
-    eligibility = await check_nft_eligibility(request.card_id)
-    if not eligibility["eligible"]:
+    if content_type not in allowed_image_types + allowed_video_types:
         raise HTTPException(
             status_code=400,
-            detail="Card is not eligible for NFT minting"
+            detail="File type not allowed. Supported types: JPG, PNG, GIF, WEBP, MP4, WEBM, MOV"
         )
     
-    card = cards[request.card_id]
+    # Read file content
+    contents = await file.read()
     
-    # Check if user has enough tokens (50 required)
-    user_balance = 15  # Mock balance, replace with actual balance check
-    if user_balance < 50:
+    # Validate file size (10MB limit)
+    if len(contents) > 10 * 1024 * 1024:  # 10MB in bytes
         raise HTTPException(
             status_code=400,
-            detail="Insufficient tokens. 50 tokens required for minting."
+            detail="File too large. Maximum size is 10MB"
         )
     
-    try:
-        # Prepare metadata for IPFS
-        metadata = {
-            "title": card["title"],
-            "content": card["content"],
-            "author": card["author_id"],
-            "correctCount": card["correct_count"],
-            "mediaUrls": card["media_urls"],
-            "createdAt": card["created_at"].isoformat()
-        }
-        
-        # TODO: Upload to IPFS and get URI (will be implemented in step 004)
-        ipfs_uri = f"ipfs://mock/{request.card_id}"
-        
-        # TODO: Interact with smart contract to mint NFT
-        # This is a mock response for now
-        nft_data = {
-            "token_id": str(uuid.uuid4()),
-            "contract_address": "0x1234...5678",
-            "owner_address": request.user_address,
-            "ipfs_uri": ipfs_uri
-        }
-        
-        # Update card with NFT status
-        cards[request.card_id]["nft_status"] = nft_data
-        nft_cards[request.card_id] = nft_data
-        
-        # Deduct tokens (mock implementation)
-        
-        return {
-            "success": True,
-            "nft_data": nft_data,
-            "token_change": -50
-        }
-        
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to mint NFT: {str(e)}"
-        )
+    # Generate unique filename
+    file_id = str(uuid.uuid4())
+    filename = file.filename or "unnamed_file"
+    original_extension = os.path.splitext(filename)[1] or ".bin"  # Default extension if none provided
+    new_filename = f"{file_id}{original_extension}"
+    file_location = f"uploads/{new_filename}"
+    
+    # Save file
+    with open(file_location, "wb") as buffer:
+        buffer.write(contents)
+    
+    # Return URL
+    return {"url": f"/static/{new_filename}"}
 
 if __name__ == "__main__":
     import uvicorn
