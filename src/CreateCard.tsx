@@ -32,9 +32,9 @@ export default function CreateCard({ onClose, onSave }: CreateCardProps) {
   };
 
   return (
-    <div className="absolute top-16 left-0 right-0 min-h-[calc(100vh-4rem)] bg-white/95 backdrop-blur-sm z-40">
-      <div className="p-4 max-w-2xl mx-auto relative">
-        <Card className="w-full">
+    <div className="fixed inset-0 bg-white/95 backdrop-blur-sm z-50">
+      <div className="p-4 max-w-2xl mx-auto relative mt-16">
+        <Card className="w-full shadow-lg">
           <CardContent className="space-y-6">
             {/* Title Input */}
             <div>

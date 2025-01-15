@@ -140,21 +140,28 @@ function App() {
         )}
 
         {/* Create New Card Button */}
-        <div className="fixed bottom-8 right-8">
+        <div className="fixed bottom-8 right-8 z-50">
           <Button 
             size="lg" 
-            className="rounded-full p-6"
+            className="rounded-full p-6 shadow-lg hover:shadow-xl transition-shadow"
             onClick={() => {
-              console.log('Plus button clicked')
+              console.log('Plus button clicked - Event handler triggered')
+              console.log('Previous showCreateCard state:', showCreateCard)
               setShowCreateCard(true)
-              console.log('Set showCreateCard to true')
+              console.log('Set showCreateCard to true - New state should update')
             }}
+            data-testid="create-card-button"
           >
             <Plus className="h-6 w-6" />
           </Button>
+          {/* Debug render state outside JSX */}
+          {(() => {
+            console.log('Render check - showCreateCard:', showCreateCard);
+            return null;
+          })()}
           {showCreateCard && (
             <>
-              {console.log('Rendering CreateCard component')}
+              {console.log('Rendering CreateCard component - Conditional block entered')}
               <CreateCard
                 onClose={() => {
                   console.log('Closing CreateCard')
