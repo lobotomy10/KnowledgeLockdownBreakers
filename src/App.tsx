@@ -23,6 +23,9 @@ function App() {
   const [currentCardIndex, setCurrentCardIndex] = useState(0)
   const [showCreateCard, setShowCreateCard] = useState(false)
   
+  // Debug state changes
+  console.log('Render App - showCreateCard:', showCreateCard)
+  
   // Mock data - in production this would come from API
   const cards: KnowledgeCard[] = [
     {
@@ -141,18 +144,29 @@ function App() {
           <Button 
             size="lg" 
             className="rounded-full p-6"
-            onClick={() => setShowCreateCard(true)}
+            onClick={() => {
+              console.log('Plus button clicked')
+              setShowCreateCard(true)
+              console.log('Set showCreateCard to true')
+            }}
           >
             <Plus className="h-6 w-6" />
           </Button>
           {showCreateCard && (
-            <CreateCard
-              onClose={() => setShowCreateCard(false)}
-              onSave={async () => {
-                // Card saving is now handled in CreateCard component
-                setShowCreateCard(false)
-              }}
-            />
+            <>
+              {console.log('Rendering CreateCard component')}
+              <CreateCard
+                onClose={() => {
+                  console.log('Closing CreateCard')
+                  setShowCreateCard(false)
+                }}
+                onSave={async () => {
+                  console.log('Saving card')
+                  // Card saving is now handled in CreateCard component
+                  setShowCreateCard(false)
+                }}
+              />
+            </>
           )}
         </div>
       </main>
