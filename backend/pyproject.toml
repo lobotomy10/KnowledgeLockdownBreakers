@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "cardnote-backend"
+version = "0.1.0"
+description = "CardNote knowledge sharing platform backend"
+authors = ["Devin <devin@example.com>"]
+package-mode = false
+packages = [{include = "."}]
+
+[tool.poetry.scripts]
+start = "uvicorn main:app --host 0.0.0.0 --port 8000"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.109.2"
+uvicorn = "^0.27.1"
+pydantic = "^2.6.1"
+python-multipart = "^0.0.9"
+python-jose = "^3.3.0"
+passlib = "^1.7.4"
+web3 = "^6.15.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
