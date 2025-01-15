@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus, Heart, X, Coins } from "lucide-react"
 import CreateCard from './CreateCard'
+import { Signup } from '@/components/Signup'
 
 interface KnowledgeCard {
   id: string;
@@ -16,6 +17,7 @@ function App() {
   const [tokens, setTokens] = useState(15)
   const [currentCardIndex, setCurrentCardIndex] = useState(0)
   const [showCreateCard, setShowCreateCard] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   
   // Mock data - in production this would come from API
   const cards: KnowledgeCard[] = [
@@ -41,6 +43,10 @@ function App() {
       setTokens(prev => prev - 2)
     }
     setCurrentCardIndex(prev => prev + 1)
+  }
+
+  if (!isAuthenticated) {
+    return <Signup />
   }
 
   return (
