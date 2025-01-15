@@ -3,19 +3,21 @@ import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
 import { translations, type Language } from '@/lib/translations'
 
-type TutorialProps = {
+interface TutorialProps {
   onClose: () => void;
   language: Language;
 }
 
-type TutorialStep = {
+interface TutorialStep {
   title: string;
   content: string;
   image?: string;
 }
 
 export const TutorialOverlay: FC<TutorialProps> = ({ onClose, language }) => {
-  const t = translations[language]
+  // Type assertion to ensure language is valid
+  const validLanguage = language as keyof typeof translations
+  const t = translations[validLanguage]
   const [currentStep, setCurrentStep] = useState(0)
 
   const tutorialSteps: TutorialStep[] = [
