@@ -10,20 +10,20 @@ export default function CreateCard({ onClose, onSave }: CreateCardProps) {
   const [content, setContent] = useState('');
 
   return (
-    <div className="fixed inset-0 bg-white z-50">
+    <div className="fixed inset-0 bg-white/95 backdrop-blur-sm z-50">
       <div className="p-4 max-w-2xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <button 
             onClick={onClose}
-            className="text-xl p-2 hover:bg-gray-100 rounded-full"
+            className="text-xl p-2 hover:bg-gray-100/80 rounded-full transition-colors"
           >
             ✕
           </button>
           <span className="text-lg">プレビュー</span>
           <button 
             onClick={onSave}
-            className="text-xl p-2 hover:bg-gray-100 rounded-full"
+            className="text-xl p-2 hover:bg-gray-100/80 rounded-full transition-colors"
           >
             ✓
           </button>

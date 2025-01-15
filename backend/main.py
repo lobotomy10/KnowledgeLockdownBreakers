@@ -173,12 +173,12 @@ async def mint_nft(request: NFTMintRequest):
     
     card = cards[request.card_id]
     
-    # Check if user has enough tokens (50 required)
+    # Check if user has enough tokens (15 required)
     user_balance = 15  # Mock balance, replace with actual balance check
-    if user_balance < 50:
+    if user_balance < 15:
         raise HTTPException(
             status_code=400,
-            detail="Insufficient tokens. 50 tokens required for minting."
+            detail="Insufficient tokens. 15 tokens required for minting."
         )
     
     try:
