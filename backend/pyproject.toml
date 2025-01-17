@@ -11,13 +11,16 @@ start = "uvicorn main:app --host 0.0.0.0 --port 8000"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-fastapi = "^0.109.2"
+fastapi = {extras = ["standard"], version = "^0.115.6"}
 uvicorn = "^0.27.1"
 pydantic = "^2.6.1"
 python-multipart = "^0.0.9"
 python-jose = "^3.3.0"
+firebase-admin = "^6.3.0"
 passlib = "^1.7.4"
 web3 = "^6.15.1"
+psycopg = {extras = ["binary"], version = "^3.2.4"}
+pydantic-settings = "^2.7.1"
 
 [build-system]
 requires = ["poetry-core"]
