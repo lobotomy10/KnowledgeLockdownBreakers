@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Mail, Lock, User, Upload, Github } from 'lucide-react';
 
 interface SignUpProps {
-  onSignUp: (data: {
+  onSignUp?: (data: {
     email: string;
     password: string;
     username: string;
@@ -33,10 +33,16 @@ export default function SignUp({ onSignUp }: SignUpProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (profileImage) {
-      await onSignUp({ email, password, username, profileImage });
-    } else {
-      await onSignUp({ email, password, username });
+    try {
+      if (onSignUp) {
+        const data = { email, password, username };
+        if (profileImage) {
+          Object.assign(data, { profileImage });
+        }
+        await onSignUp(data);
+      }
+    } catch (error) {
+      console.error('Signup failed:', error);
     }
   };
 
