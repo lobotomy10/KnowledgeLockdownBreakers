@@ -1,1 +1,0 @@
-{\n  "routes": [\n    { "handle": "filesystem" },\n    { "src": "/(.*)", "dest": "/index.html" }\n  ]\n}
