@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus, Heart, X, Coins } from "lucide-react"
 import CreateCard from './CreateCard'
+import NavigationBar from './ui/NavigationBar'
 
 interface KnowledgeCard {
   id: string;
@@ -45,18 +46,15 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white/95 backdrop-blur-sm shadow-sm p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">CardNote</h1>
-        <div className="flex items-center gap-2">
-          <Coins className="text-yellow-500" />
-          <span className="font-semibold">{tokens}</span>
-          {/* Token change indicator */}
-          <span className="text-sm text-gray-500">
-            (Correct: -2)
-          </span>
-        </div>
-      </header>
+      <NavigationBar language="en" />
+      <div className="flex items-center gap-2 fixed top-4 right-4 z-50">
+        <Coins className="text-yellow-500" />
+        <span className="font-semibold">{tokens}</span>
+        {/* Token change indicator */}
+        <span className="text-sm text-gray-500">
+          (Correct: -2)
+        </span>
+      </div>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
