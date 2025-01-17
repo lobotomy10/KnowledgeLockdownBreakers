@@ -1,0 +1,49 @@
+{
+  "common": {
+    "back": "Back",
+    "create": "Create",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "error": "An error occurred"
+  },
+  "auth": {
+    "signup": "Sign Up",
+    "login": "Log In",
+    "email": "Email",
+    "password": "Password",
+    "username": "Username",
+    "profileImage": "Profile Image",
+    "or": "or",
+    "signupWithGoogle": "Sign up with Google",
+    "signupWithTwitter": "Sign up with Twitter"
+  },
+  "profile": {
+    "title": "Profile",
+    "tokenBalance": "Token Balance",
+    "myCards": "My Cards",
+    "savedCards": "Saved Cards",
+    "createdCards": "Created Cards",
+    "correctCards": "Correct Cards",
+    "unnecessaryCards": "Unnecessary Cards"
+  },
+  "card": {
+    "create": "Create Card",
+    "title": "Title",
+    "content": "Content",
+    "addMedia": "Add Media",
+    "addTags": "Add Tags",
+    "preview": "Preview",
+    "swipeCorrect": "Swipe right for Correct",
+    "swipeUnnecessary": "Swipe left for Unnecessary",
+    "noMoreCards": "No more cards to review!",
+    "createNew": "Create new card"
+  },
+  "tokens": {
+    "balance": "Balance",
+    "correct": "Correct (-2)",
+    "unnecessary": "Unnecessary",
+    "specialContent": "Special Content (-5)",
+    "transfer": "Transfer Tokens"
+  }
+}
