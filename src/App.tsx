@@ -1,9 +1,26 @@
 import { useState } from 'react'
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, Heart, X, Coins } from "lucide-react"
+import { Plus, Heart, X, Coins, Globe } from "lucide-react"
 import CreateCard from './CreateCard'
 import NavigationBar from './ui/NavigationBar'
+
+type Language = 'en' | 'ja'
+
+const translations = {
+  noCards: {
+    en: 'No cards to review!',
+    ja: 'レビューするカードがありません！'
+  },
+  createCard: {
+    en: 'Create New Card',
+    ja: '新しいカードを作成'
+  },
+  tokenDeduction: {
+    en: 'Correct: -2',
+    ja: '正解: -2'
+  }
+}
 
 interface KnowledgeCard {
   id: string;
@@ -17,6 +34,7 @@ function App() {
   const [tokens, setTokens] = useState(15)
   const [currentCardIndex, setCurrentCardIndex] = useState(0)
   const [showCreateCard, setShowCreateCard] = useState(false)
+  const [language, setLanguage] = useState<Language>('en')
   
   // Mock data - in production this would come from API
   const cards: KnowledgeCard[] = [
@@ -46,14 +64,22 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <NavigationBar language="en" />
-      <div className="flex items-center gap-2 fixed top-4 right-4 z-50">
-        <Coins className="text-yellow-500" />
-        <span className="font-semibold">{tokens}</span>
-        {/* Token change indicator */}
-        <span className="text-sm text-gray-500">
-          (Correct: -2)
-        </span>
+      <NavigationBar language={language} />
+      <div className="flex items-center gap-6 fixed top-4 right-4 z-50">
+        <button
+          onClick={() => setLanguage(prev => prev === 'en' ? 'ja' : 'en')}
+          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+        >
+          <Globe className="h-5 w-5" />
+        </button>
+        <div className="flex items-center gap-2">
+          <Coins className="text-yellow-500" />
+          <span className="font-semibold">{tokens}</span>
+          {/* Token change indicator */}
+          <span className="text-sm text-gray-500">
+            ({translations.tokenDeduction[language]})
+          </span>
+        </div>
       </div>
 
       {/* Main Content */}
@@ -96,9 +122,9 @@ function App() {
           </div>
         ) : (
           <div className="text-center">
-            <p className="text-xl text-gray-600 mb-4">レビューするカードがありません！</p>
+            <p className="text-xl text-gray-600 mb-4">{translations.noCards[language]}</p>
             <Button onClick={() => setShowCreateCard(true)}>
-              新しいカードを作成
+              {translations.createCard[language]}
             </Button>
           </div>
         )}
@@ -119,6 +145,7 @@ function App() {
                 // Card saving is now handled in CreateCard component
                 setShowCreateCard(false)
               }}
+              language={language}
             />
           )}
         </div>
