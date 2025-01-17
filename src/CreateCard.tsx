@@ -8,6 +8,14 @@ interface CreateCardProps {
 }
 
 const translations = {
+  back: {
+    en: 'Back',
+    ja: '戻る'
+  },
+  create: {
+    en: 'Create',
+    ja: '作成'
+  },
   title: {
     en: 'Title',
     ja: 'タイトル'
@@ -68,9 +76,9 @@ export default function CreateCard({ onClose, onSave, language = 'en' }: CreateC
         <div className="flex justify-between items-center mb-6">
           <button 
             onClick={onClose}
-            className="text-xl p-2 hover:bg-gray-100/80 rounded-full transition-colors"
+            className="px-4 py-2 text-sm font-medium hover:bg-gray-100/80 rounded-lg transition-colors"
           >
-            ✕
+            {translations.back[language]}
           </button>
           <span className="text-lg">{translations.preview[language]}</span>
           <button 
@@ -113,9 +121,9 @@ export default function CreateCard({ onClose, onSave, language = 'en' }: CreateC
                 console.error("Failed to create card:", error);
               }
             }}
-            className="text-xl p-2 hover:bg-gray-100/80 rounded-full transition-colors"
+            className="px-4 py-2 text-sm font-medium bg-blue-500 text-white hover:bg-blue-600 rounded-lg transition-colors"
           >
-            ✓
+            {translations.create[language]}
           </button>
         </div>
 

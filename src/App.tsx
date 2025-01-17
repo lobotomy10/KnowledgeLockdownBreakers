@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Plus, Heart, X, Coins, Globe } from "lucide-react"
 import CreateCard from './CreateCard'
 import NavigationBar from './ui/NavigationBar'
+import UserRegistration from './UserRegistration'
 
 type Language = 'en' | 'ja'
 
@@ -35,6 +36,7 @@ function App() {
   const [currentCardIndex, setCurrentCardIndex] = useState(0)
   const [showCreateCard, setShowCreateCard] = useState(false)
   const [language, setLanguage] = useState<Language>('en')
+  const [showRegistration, setShowRegistration] = useState(false)
   
   // Mock data - in production this would come from API
   const cards: KnowledgeCard[] = [
@@ -64,7 +66,10 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <NavigationBar language={language} />
+      <NavigationBar 
+        language={language}
+        onRegisterClick={() => setShowRegistration(true)}
+      />
       <div className="flex items-center gap-6 fixed top-4 right-4 z-50">
         <button
           onClick={() => setLanguage(prev => prev === 'en' ? 'ja' : 'en')}
@@ -150,6 +155,17 @@ function App() {
           )}
         </div>
       </main>
+
+      {/* User Registration Modal */}
+      {showRegistration && (
+        <UserRegistration
+          onClose={() => setShowRegistration(false)}
+          onRegister={async () => {
+            setShowRegistration(false);
+          }}
+          language={language}
+        />
+      )}
     </div>
   )
 }
