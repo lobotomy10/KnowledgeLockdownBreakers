@@ -4,7 +4,7 @@ from typing import List, Optional
 from ...schemas.card import CardCreate, CardResponse, CardInteraction
 from ...schemas.user import UserResponse
 from ...services.card import CardService
-from ..auth import get_current_user
+from .auth import get_current_user
 
 router = APIRouter()
 card_service = CardService()

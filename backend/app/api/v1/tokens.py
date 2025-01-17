@@ -4,7 +4,7 @@ from typing import List
 from ...schemas.token import TokenTransactionResponse, TokenTransfer, TokenBalance
 from ...schemas.user import UserResponse
 from ...services.token import TokenService
-from ..auth import get_current_user
+from .auth import get_current_user
 
 router = APIRouter()
 token_service = TokenService()
