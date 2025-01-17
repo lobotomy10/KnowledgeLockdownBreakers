@@ -14,19 +14,25 @@ primary_region = "iad"
   auto_stop_machines = true
   auto_start_machines = true
   min_machines_running = 0
+  processes = ["app"]
+
+  [http_service.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+  [[http_service.checks]]
+    interval = "15s"
+    timeout = "2s"
+    grace_period = "1s"
+    method = "GET"
+    path = "/healthz"
+    protocol = "http"
+    tls_skip_verify = false
 
 [[statics]]
   guest_path = "/app/dist"
   url_prefix = "/"
 
-[http_service.concurrency]
-  type = "connections"
-  hard_limit = 25
-  soft_limit = 20
-
-[[http_service.checks]]
-  interval = "15s"
-  timeout = "2s"
-  grace_period = "1s"
-  method = "GET"
-  path = "/healthz"
+[processes]
+  app = "npm run start"
