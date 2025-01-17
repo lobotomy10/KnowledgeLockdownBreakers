@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Card } from "@/components/ui/card"
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { Button } from "@/components/ui/button"
 import { Plus, Heart, X, Coins } from "lucide-react"
-import CreateCard from './CreateCard'
+import KnowledgeCard from './components/cards/KnowledgeCard'
 
 interface KnowledgeCard {
   id: string;
