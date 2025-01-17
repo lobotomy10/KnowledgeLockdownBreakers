@@ -1,5 +1,8 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card } from "@/components/ui/card";
+import { cardAPI, tokenAPI } from '@/services/api';
 
 interface CreateCardProps {
   onClose?: () => void;
@@ -7,6 +10,8 @@ interface CreateCardProps {
 }
 
 export default function CreateCard({ onClose, onSave }: CreateCardProps) {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [selectedMedia, setSelectedMedia] = useState<FileList | null>(null);
@@ -43,39 +48,36 @@ export default function CreateCard({ onClose, onSave }: CreateCardProps) {
           <span className="text-lg">Preview</span>
           <button 
             onClick={async () => {
-              let uploadedMediaUrls: string[] = [];
-              if (selectedMedia) {
-                const formData = new FormData();
-                for (let i = 0; i < selectedMedia.length; i++) {
-                  formData.append("files", selectedMedia[i]);
-                }
-                try {
-                  const response = await fetch("https://cardnote-backend-wbgoevjh.fly.dev/api/upload/media", {
+              try {
+                let uploadedMediaUrls: string[] = [];
+                if (selectedMedia) {
+                  const formData = new FormData();
+                  for (let i = 0; i < selectedMedia.length; i++) {
+                    formData.append("files", selectedMedia[i]);
+                  }
+                  const response = await fetch(`${import.meta.env.VITE_API_URL}/upload/media`, {
                     method: "POST",
                     body: formData,
                   });
                   const data = await response.json();
                   uploadedMediaUrls = data.media_urls || [];
-                } catch (error) {
-                  console.error("Failed to upload media:", error);
                 }
-              }
 
-              // Create the card with media URLs
-              try {
-                const createCardResponse = await fetch("https://cardnote-backend-wbgoevjh.fly.dev/api/cards", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    title,
-                    content,
-                    media_urls: uploadedMediaUrls,
-                    tags: [],
-                  }),
+                const card = await cardAPI.create({
+                  title,
+                  content,
+                  media_urls: uploadedMediaUrls,
+                  tags: []
                 });
                 
-                if (createCardResponse.ok && onSave) {
-                  await onSave();
+                if (card) {
+                  // Update token balance and show feedback
+                  await tokenAPI.getBalance();
+                  alert(t('tokens.cardCreated', { amount: 5 }));
+                  if (onSave) {
+                    await onSave();
+                  }
+                  navigate('/');
                 }
               } catch (error) {
                 console.error("Failed to create card:", error);

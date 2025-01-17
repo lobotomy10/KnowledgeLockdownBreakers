@@ -44,6 +44,22 @@
     "correct": "活用 (-2)",
     "unnecessary": "不要",
     "specialContent": "特別コンテンツ (-5)",
-    "transfer": "トークン送信"
+    "transfer": "トークン送信",
+    "reward": "+{{amount}}トークン",
+    "cost": "-{{amount}}トークン",
+    "insufficient": "トークンが不足しています",
+    "cardCreated": "カードを作成しました！ +{{amount}}トークン",
+    "cardCorrect": "カードを活用しました！ -{{amount}}トークン",
+    "cardUnnecessary": "カードを不要としました",
+    "recipientId": "受信者ID",
+    "enterRecipientId": "受信者のIDを入力",
+    "amount": "数量",
+    "enterAmount": "送信する数量を入力",
+    "invalidAmount": "有効な数量を入力してください",
+    "transferSuccess": "{{amount}}トークンの送信が完了しました",
+    "transferFailed": "トークンの送信に失敗しました",
+    "unlock": "コンテンツのロックを解除 (-5トークン)",
+    "unlockSuccess": "コンテンツのロックを解除しました！",
+    "unlockFailed": "コンテンツのロックを解除できませんでした"
   }
 }

@@ -1,7 +1,10 @@
+import * as React from 'react';
 import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
-import { Heart, X } from 'lucide-react';
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Heart, X, Lock } from 'lucide-react';
+import SpecialContent from "./SpecialContent";
 
 interface KnowledgeCardProps {
   id: string;
@@ -54,8 +57,11 @@ export default function KnowledgeCard({
     };
   };
 
+  const [showSpecialContent, setShowSpecialContent] = useState(false);
+
   return (
-    <Card
+    <>
+      <Card
       className="w-full aspect-[9/16] max-w-sm mx-auto relative overflow-hidden"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
@@ -89,9 +95,21 @@ export default function KnowledgeCard({
             <X className="w-6 h-6 mr-2" />
             <span>{t('card.swipeUnnecessary')}</span>
           </div>
-          <div className="flex items-center">
-            <Heart className="w-6 h-6 mr-2" />
-            <span>{t('card.swipeCorrect')}</span>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowSpecialContent(true);
+              }}
+              className="flex items-center text-white hover:text-yellow-300 transition-colors"
+            >
+              <Lock className="w-6 h-6 mr-2" />
+              <span>{t('tokens.specialContent')}</span>
+            </button>
+            <div className="flex items-center">
+              <Heart className="w-6 h-6 mr-2" />
+              <span>{t('card.swipeCorrect')}</span>
+            </div>
           </div>
         </div>
       </CardFooter>
@@ -116,5 +134,18 @@ export default function KnowledgeCard({
         </div>
       </div>
     </Card>
+
+      <Dialog open={showSpecialContent} onOpenChange={setShowSpecialContent}>
+        <DialogContent>
+          <SpecialContent
+            cardId={id}
+            title={title}
+            previewContent={content.substring(0, 100) + '...'}
+            fullContent={content}
+            onUnlock={() => setShowSpecialContent(false)}
+          />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

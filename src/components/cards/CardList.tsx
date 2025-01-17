@@ -1,6 +1,5 @@
-import { useTranslation } from 'react-i18next';
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Heart, X } from 'lucide-react';
+import { Heart } from 'lucide-react';
 
 interface CardListProps {
   cards: Array<{
@@ -15,8 +14,6 @@ interface CardListProps {
 }
 
 export default function CardList({ cards, onCardClick }: CardListProps) {
-  const { t } = useTranslation();
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
       {cards.map((card) => (

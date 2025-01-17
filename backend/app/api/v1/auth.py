@@ -1,31 +1,47 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import APIRouter, Depends, HTTPException, status, Header
+from fastapi.security import HTTPBearer
 from firebase_admin import auth as firebase_auth
 from typing import Optional, Dict
 
 from ...core.config import settings
-
 from ...schemas.user import UserCreate, UserResponse, UserUpdate
 from ...services.auth import AuthService
-from ...core.config import settings
 
 router = APIRouter()
 auth_service = AuthService()
+security = HTTPBearer()
 
-async def get_current_user(token: str = Depends(OAuth2PasswordBearer(tokenUrl="token"))) -> Optional[UserResponse]:
-    decoded_token = await auth_service.verify_token(token)
-    if not decoded_token:
+async def get_current_user(authorization: str = Header(None)) -> UserResponse:
+    if not authorization:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials"
+            detail="Not authenticated"
         )
-    user = await auth_service.get_user(decoded_token["uid"])
-    if not user:
+    try:
+        scheme, token = authorization.split()
+        if scheme.lower() != 'bearer':
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication scheme"
+            )
+        decoded_token = await auth_service.verify_token(token)
+        if not decoded_token:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication credentials"
+            )
+        user = await auth_service.get_user(decoded_token["uid"])
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        return UserResponse(**user.to_dict())
+    except ValueError:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token format"
         )
-    return UserResponse(**user.to_dict())
 
 @router.post("/signup", response_model=dict)
 async def signup(user: UserCreate):
@@ -54,8 +70,9 @@ async def signup(user: UserCreate):
 @router.put("/me", response_model=UserResponse)
 async def update_profile(
     update: UserUpdate,
-    current_user: UserResponse = Depends(get_current_user)
+    authorization: str = Header(None)
 ):
+    current_user = await get_current_user(authorization)
     updated_user = await auth_service.update_user(
         current_user.id,
         username=update.username,

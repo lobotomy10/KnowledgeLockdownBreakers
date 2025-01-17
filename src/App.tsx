@@ -1,17 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Button } from "@/components/ui/button"
 import { Plus, Heart, X, Coins, User } from "lucide-react"
 import KnowledgeCard from './components/cards/KnowledgeCard'
+import { cardAPI, tokenAPI } from '@/services/api'
 
-interface CardData {
-  id: string;
-  title: string;
-  content: string;
-  author: string;
-  likes: number;
-}
+import type { Card } from '@/services/api';
+type CardData = Card;
 
 function App() {
   const { t } = useTranslation()
@@ -19,30 +15,49 @@ function App() {
   const [tokens, setTokens] = useState(15)
   const [currentCardIndex, setCurrentCardIndex] = useState(0)
   
-  // Mock data - in production this would come from API
-  const cards: CardData[] = [
-    {
-      id: '1',
-      title: 'React Best Practices',
-      content: 'Always use functional components and hooks for better code organization and reusability.',
-      author: '@reactdev',
-      likes: 123,
-    },
-    {
-      id: '2',
-      title: 'TypeScript Tips',
-      content: 'Use interfaces over types when you need to extend or implement.',
-      author: '@tsexpert',
-      likes: 89,
-    },
-  ]
+  const [cards, setCards] = useState<CardData[]>([]);
 
-  const handleSwipe = (direction: 'left' | 'right') => {
-    if (direction === 'right') {
-      // Correct - save card and deduct tokens
-      setTokens(prev => prev - 2)
+  // Fetch cards on mount
+  useEffect(() => {
+    const fetchCards = async () => {
+      try {
+        const fetchedCards = await cardAPI.getFeed();
+        setCards(fetchedCards);
+        const balance = await tokenAPI.getBalance();
+        setTokens(balance.balance);
+      } catch (error) {
+        console.error('Failed to fetch cards:', error);
+      }
+    };
+    fetchCards();
+  }, []);
+
+  const handleSwipe = async (direction: 'left' | 'right') => {
+    if (currentCardIndex < cards.length) {
+      try {
+        const type = direction === 'right' ? 'correct' : 'unnecessary';
+        const result = await cardAPI.interact(cards[currentCardIndex].id, type);
+        
+        if (type === 'correct') {
+          // Update token balance
+          const { balance } = await tokenAPI.getBalance();
+          setTokens(balance);
+          alert(t('tokens.cardCorrect', { amount: Math.abs(result.token_change || 0) }));
+        } else {
+          alert(t('tokens.cardUnnecessary'));
+        }
+        
+        // Check if we need to fetch more cards
+        if (currentCardIndex === cards.length - 1) {
+          const newCards = await cardAPI.getFeed();
+          setCards(newCards);
+        }
+      } catch (error) {
+        console.error('Failed to process card interaction:', error);
+        alert(t('common.error'));
+      }
     }
-    setCurrentCardIndex(prev => prev + 1)
+    setCurrentCardIndex(prev => prev + 1);
   }
 
   return (

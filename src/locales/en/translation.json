@@ -44,6 +44,22 @@
     "correct": "Correct (-2)",
     "unnecessary": "Unnecessary",
     "specialContent": "Special Content (-5)",
-    "transfer": "Transfer Tokens"
+    "transfer": "Transfer Tokens",
+    "reward": "+{{amount}} tokens",
+    "cost": "-{{amount}} tokens",
+    "insufficient": "Insufficient tokens",
+    "cardCreated": "Card created! +{{amount}} tokens",
+    "cardCorrect": "Card marked as correct! -{{amount}} tokens",
+    "cardUnnecessary": "Card marked as unnecessary",
+    "recipientId": "Recipient ID",
+    "enterRecipientId": "Enter recipient's ID",
+    "amount": "Amount",
+    "enterAmount": "Enter amount to transfer",
+    "invalidAmount": "Please enter a valid amount",
+    "transferSuccess": "Successfully transferred {{amount}} tokens",
+    "transferFailed": "Failed to transfer tokens",
+    "unlock": "Unlock Content (-5 tokens)",
+    "unlockSuccess": "Content unlocked!",
+    "unlockFailed": "Failed to unlock content"
   }
 }

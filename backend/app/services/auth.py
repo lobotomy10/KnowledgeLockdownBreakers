@@ -7,18 +7,37 @@ from datetime import datetime
 from ..core.config import settings
 from ..models.user import User
 from ..db.base import InMemoryDB
+from .token import TokenService
 
 class AuthService:
+    _instance = None
+    _initialized = False
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(AuthService, cls).__new__(cls)
+        return cls._instance
+
     def __init__(self):
-        self.users_db = InMemoryDB[User]()
-        # Mock implementation for development
-        # TODO: Replace with proper Firebase initialization in production
-        self._mock_tokens = {}
+        if not AuthService._initialized:
+            self.users_db = InMemoryDB[User]()
+            # Mock implementation for development
+            # TODO: Replace with proper Firebase initialization in production
+            self._mock_tokens = {}
+            AuthService._initialized = True
     
     async def verify_token(self, token: str) -> Optional[Dict]:
         # Mock implementation for development
         # TODO: Replace with proper Firebase token verification in production
-        if token in self._mock_tokens:
+        if settings.DEV_MODE and token.startswith('dev_token_'):
+            user_id = token.replace('dev_token_', '')
+            user = await self.get_user(user_id)
+            if user:
+                return {
+                    "uid": user_id,
+                    "email": user.email
+                }
+        elif token in self._mock_tokens:
             return self._mock_tokens[token]
         return None
     
@@ -31,7 +50,10 @@ class AuthService:
             profile_image=profile_image,
             token_balance=settings.INITIAL_TOKEN_BALANCE
         )
+        # Initialize user in both auth and token service databases
         await self.users_db.create(user_id, user)
+        token_service = TokenService()
+        await token_service.users_db.create(user_id, user)
         
         # In dev mode, create a mock token
         if settings.DEV_MODE:
