@@ -75,6 +75,12 @@ function App() {
           </div>
           <Button
             variant="ghost"
+            onClick={() => navigate('/signup')}
+          >
+            {t('auth.signup')}
+          </Button>
+          <Button
+            variant="ghost"
             size="icon"
             onClick={() => navigate('/profile')}
           >
