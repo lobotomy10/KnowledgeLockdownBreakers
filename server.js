@@ -24,12 +24,13 @@ async function createServer() {
       lastModified: true,
     }));
     
-    // Handle all routes by serving index.html
-    app.get('*', (req, res, next) => {
-      // Skip API routes
-      if (req.path.startsWith('/api')) {
-        return next();
-      }
+    // Handle API routes first
+    app.use('/api', (req, res) => {
+      res.redirect(`https://cardnote-backend-hspnucng.fly.dev${req.url}`);
+    });
+    
+    // Handle all other routes by serving index.html
+    app.get('*', (req, res) => {
       res.sendFile(join(distPath, 'index.html'));
     });
   } else {
