@@ -2,7 +2,7 @@ app = "knowledge-card-app"
 primary_region = "iad"
 
 [build]
-  builder = "heroku/buildpacks:20"
+  dockerfile = "Dockerfile"
 
 [env]
   PORT = "8080"
@@ -14,12 +14,6 @@ primary_region = "iad"
   auto_stop_machines = true
   auto_start_machines = true
   min_machines_running = 0
-  processes = ["app"]
-
-  [http_service.concurrency]
-    type = "connections"
-    hard_limit = 25
-    soft_limit = 20
 
   [[http_service.checks]]
     interval = "15s"
@@ -30,9 +24,6 @@ primary_region = "iad"
     protocol = "http"
     tls_skip_verify = false
 
-[[statics]]
-  guest_path = "/app/dist"
-  url_prefix = "/"
-
-[processes]
-  app = "npm run start"
+[mounts]
+  source = "nginx_config"
+  destination = "/etc/nginx/nginx.conf"
