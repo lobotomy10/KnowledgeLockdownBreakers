@@ -81,6 +81,12 @@ function App() {
           </Button>
           <Button
             variant="ghost"
+            onClick={() => window.location.href = '/#/signup'}
+          >
+            {t('auth.signup')}
+          </Button>
+          <Button
+            variant="ghost"
             size="icon"
             onClick={() => navigate('/profile')}
           >
