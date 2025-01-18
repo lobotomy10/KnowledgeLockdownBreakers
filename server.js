@@ -18,10 +18,12 @@ async function createServer() {
 
   if (isProd) {
     // Serve static files from dist with proper caching
+    // Ensure static files don't interfere with client-side routing
     app.use(express.static(distPath, {
       maxAge: '1h',
       etag: true,
       lastModified: true,
+      index: false // Disable automatic serving of index.html
     }));
     
     // Handle API routes first
