@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import SignUp from '@/components/auth/SignUp';
 import UserProfile from '@/components/profile/UserProfile';
 import CreateCard from '@/CreateCard';
@@ -7,14 +7,14 @@ import { authAPI } from '@/services/api';
 
 export default function AppRouter() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/signup" element={
           <SignUp
             onSignUp={async (data) => {
               try {
                 await authAPI.signup(data);
-                window.location.href = '/';
+                window.location.href = '/#/';
               } catch (error) {
                 console.error('Signup failed:', error);
                 throw error;
@@ -27,6 +27,6 @@ export default function AppRouter() {
         <Route path="/" element={<App />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }

@@ -9,15 +9,24 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  base: "",
   build: {
     outDir: "dist",
+    assetsDir: "assets",
+    emptyOutDir: true,
+    sourcemap: true,
     rollupOptions: {
       output: {
         manualChunks: undefined,
+        assetFileNames: "assets/[name].[hash].[ext]",
+        chunkFileNames: "assets/[name].[hash].js",
+        entryFileNames: "assets/[name].[hash].js",
       },
     },
   },
   server: {
-    historyApiFallback: true,
+    port: 3000,
+    open: true,
+    cors: true,
   },
 });
