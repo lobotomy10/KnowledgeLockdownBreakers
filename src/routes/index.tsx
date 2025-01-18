@@ -14,7 +14,7 @@ export default function AppRouter() {
             onSignUp={async (data) => {
               try {
                 await authAPI.signup(data);
-                window.location.href = '/#/';
+                window.location.href = '/';
               } catch (error) {
                 console.error('Signup failed:', error);
                 throw error;

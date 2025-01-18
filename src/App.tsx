@@ -119,7 +119,7 @@ function App() {
         ) : (
           <div className="text-center">
             <p className="text-xl text-gray-600 mb-4">{t('card.noMoreCards')}</p>
-            <Button onClick={() => navigate('/create')}>
+            <Button onClick={() => navigate('/#/create')}>
               {t('card.createNew')}
             </Button>
           </div>
