@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import SignUp from '@/components/auth/SignUp';
 import UserProfile from '@/components/profile/UserProfile';
 import CreateCard from '@/CreateCard';
@@ -6,8 +6,6 @@ import App from '@/App';
 import { authAPI } from '@/services/api';
 
 export default function AppRouter() {
-  const navigate = useNavigate();
-
   return (
     <Routes>
       <Route path="/signup" element={
@@ -15,7 +13,7 @@ export default function AppRouter() {
           onSignUp={async (data) => {
             try {
               await authAPI.signup(data);
-              navigate('/');
+              window.location.replace('/#/');
             } catch (error) {
               console.error('Signup failed:', error);
               throw error;
