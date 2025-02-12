@@ -1,8 +1,10 @@
+/// <reference types="vite/client" />
+import * as React from "react";
 import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { VideoPlayer } from "./VideoPlayer";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
+import { Button } from "./ui/button";
+import { ScrollArea } from "./ui/scroll-area";
 import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
