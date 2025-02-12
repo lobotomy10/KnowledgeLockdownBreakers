@@ -2,6 +2,8 @@ import * as React from "react";
 import { useEffect, useRef } from "react";
 import ReactPlayer from "react-player";
 
+export type { VideoPlayerProps };
+
 interface VideoPlayerProps {
   videoUrl: string;
   startTimestamp: number;
