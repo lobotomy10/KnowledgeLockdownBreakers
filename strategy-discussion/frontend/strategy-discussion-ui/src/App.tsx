@@ -157,22 +157,14 @@ function App() {
               ))}
             </ScrollArea>
             {discussion.is_active && (
-              <div className="mt-4 flex justify-center">
-                <Button
-                  onClick={getNextMessage}
-                  disabled={isLoading}
-                  className="w-full"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      応答を生成中...
-                    </>
-                  ) : (
-                    '次の意見を聞く'
-                  )}
-                </Button>
-              </div>
+              {isLoading && (
+                <div className="mt-4 flex justify-center">
+                  <div className="flex items-center text-gray-500">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    応答を生成中...
+                  </div>
+                </div>
+              )}
             )}
           </Card>
         )}
