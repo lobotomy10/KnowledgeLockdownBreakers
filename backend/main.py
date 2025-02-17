@@ -105,7 +105,8 @@ async def chat_stream(
         messages = [{"role": "system", "content": f"あなたは{request.persona}として回答してください。"}]
         messages.extend([{"role": m.role, "content": m.content} for m in request.messages])
 
-        response = await openai.ChatCompletion.acreate(
+        client = openai.AsyncClient(api_key=os.getenv("OPENAI_API_KEY"))
+        response = await client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=messages,
             stream=True,
@@ -118,7 +119,7 @@ async def chat_stream(
 
 async def process_stream(response):
     async for chunk in response:
-        if chunk and chunk.choices[0].delta.content:
+        if chunk.choices[0].delta.content:
             yield chunk.choices[0].delta.content
 
 @app.post("/api/auth/signup", response_model=UserResponse)
