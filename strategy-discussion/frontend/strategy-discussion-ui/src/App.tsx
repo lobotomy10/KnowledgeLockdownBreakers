@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Persona, Discussion } from './types';
 import { PersonaCard } from './components/PersonaCard';
 import { ChatMessage } from './components/ChatMessage';
@@ -17,6 +17,7 @@ function App() {
   const [discussion, setDiscussion] = useState<Discussion | null>(null);
   const [strategyDocument, setStrategyDocument] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const isActiveRef = useRef(false);
 
   useEffect(() => {
     fetchPersonas();
@@ -43,9 +44,10 @@ function App() {
     setIsLoading(true);
     try {
       const discussion = await api.startDiscussion(strategyDocument);
+      isActiveRef.current = true;
       setDiscussion(discussion);
-      // Start automatic message generation
-      setTimeout(getNextMessage, 2000);
+      // Start message generation immediately
+      getNextMessage();
     } catch (error) {
       if (error instanceof APIError) {
         toast({
@@ -54,25 +56,23 @@ function App() {
           description: error.message,
         });
       }
+      isActiveRef.current = false;
     }
     setIsLoading(false);
   };
 
   const getNextMessage = async () => {
-    if (!discussion?.is_active) return;
-
-    setIsLoading(true);
     try {
       const message = await api.getNextMessage();
       setDiscussion(prev => {
-        if (!prev) return null;
+        if (!prev || !prev.is_active) return prev;
         const updated = {
           ...prev,
           messages: [...prev.messages, message],
         };
-        // Continue automatic message generation if still active
+        // Schedule next message only if still active
         if (updated.is_active) {
-          setTimeout(getNextMessage, 2000);
+          setTimeout(getNextMessage, 1000);
         }
         return updated;
       });
@@ -85,12 +85,12 @@ function App() {
         });
       }
     }
-    setIsLoading(false);
   };
 
   const stopDiscussion = async () => {
     try {
       await api.stopDiscussion();
+      isActiveRef.current = false;
       setDiscussion(prev => prev ? { ...prev, is_active: false } : null);
     } catch (error) {
       if (error instanceof APIError) {
