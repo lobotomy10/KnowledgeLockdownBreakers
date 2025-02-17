@@ -105,7 +105,11 @@ async def chat_stream(
         messages = [{"role": "system", "content": f"あなたは{request.persona}として回答してください。"}]
         messages.extend([{"role": m.role, "content": m.content} for m in request.messages])
 
-        client = openai.AsyncClient(api_key=os.getenv("OPENAI_API_KEY"))
+        client = openai.AsyncClient(
+            api_key=os.getenv("OPENAI_API_KEY"),
+            base_url="https://api.openai.com/v1",
+            timeout=30.0
+        )
         response = await client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=messages,
