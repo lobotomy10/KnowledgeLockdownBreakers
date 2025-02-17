@@ -9,6 +9,7 @@ import { ScrollArea } from './components/ui/scroll-area';
 import { Loader2 } from 'lucide-react';
 
 import { api, APIError } from './api/client';
+import { ToastProvider, ToastViewport } from './components/ui/toast';
 import { toast } from './components/ui/use-toast';
 
 function App() {
@@ -99,6 +100,9 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
+      <ToastProvider>
+        <ToastViewport />
+      </ToastProvider>
       <div className="max-w-6xl mx-auto space-y-8">
         <h1 className="text-3xl font-bold text-center mb-8">戦略文書の議論プログラム</h1>
 

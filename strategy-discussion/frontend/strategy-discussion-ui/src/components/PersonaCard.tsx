@@ -1,6 +1,8 @@
 import { Persona } from '../types';
 import { Card, CardHeader, CardContent } from './ui/card';
 import { PersonaSettings } from './PersonaSettings';
+import { api, APIError } from '../api/client';
+import { toast } from '../components/ui/use-toast';
 
 interface PersonaCardProps {
   persona: Persona;
