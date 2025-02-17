@@ -45,7 +45,7 @@ function App() {
       const discussion = await api.startDiscussion(strategyDocument);
       setDiscussion(discussion);
       // Start automatic message generation
-      setTimeout(getNextMessage, 3000);
+      setTimeout(getNextMessage, 2000);
     } catch (error) {
       if (error instanceof APIError) {
         toast({
@@ -70,7 +70,7 @@ function App() {
       } : null);
       // Continue automatic message generation
       if (discussion?.is_active) {
-        setTimeout(getNextMessage, 3000);
+        setTimeout(getNextMessage, 2000);
       }
     } catch (error) {
       if (error instanceof APIError) {
@@ -182,7 +182,7 @@ function App() {
                 />
               ))}
             </ScrollArea>
-            {discussion.is_active && isLoading && (
+            {discussion.is_active && (
               <div className="mt-4 flex justify-center">
                 <div className="flex items-center text-gray-500">
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
