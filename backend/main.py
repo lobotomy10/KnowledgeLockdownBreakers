@@ -96,8 +96,10 @@ class StreamRequest(BaseModel):
     persona: str
 
 @app.post("/chat")
-@RateLimiter(times=10, seconds=60)
-async def chat_stream(request: StreamRequest):
+async def chat_stream(
+    request: StreamRequest,
+    rate_limit: bool = Depends(RateLimiter(times=10, seconds=60))
+):
     try:
         # Add persona context to the messages
         messages = [{"role": "system", "content": f"あなたは{request.persona}として回答してください。"}]
