@@ -1,8 +1,11 @@
 from fastapi import FastAPI, HTTPException, Depends, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import List, Optional
+import openai
+from dotenv import load_dotenv
 import uuid
 import os
 from datetime import datetime
@@ -10,8 +13,22 @@ from web3 import Web3
 from eth_account import Account
 from eth_utils import to_checksum_address
 import json
+from redis import asyncio as aioredis
+from fastapi_limiter import FastAPILimiter
+from fastapi_limiter.depends import RateLimiter
+
+load_dotenv()
 
 app = FastAPI(title="CardNote API")
+
+# Configure OpenAI
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# Configure Redis and rate limiting
+@app.on_event("startup")
+async def startup():
+    redis = await aioredis.from_url("redis://localhost", encoding="utf-8", decode_responses=True)
+    await FastAPILimiter.init(redis)
 
 # Create uploads directory if it doesn't exist
 os.makedirs("uploads", exist_ok=True)
@@ -69,6 +86,49 @@ class NFTMintRequest(BaseModel):
 
 class CardInteraction(BaseModel):
     interaction_type: str
+
+class Message(BaseModel):
+    role: str
+    content: str
+
+class StreamRequest(BaseModel):
+    messages: List[Message]
+    persona: str
+
+@app.post("/chat")
+async def chat_stream(
+    request: StreamRequest,
+    rate_limit: bool = Depends(RateLimiter(times=10, seconds=60))
+):
+    try:
+        # Add persona context to the messages
+        messages = [{"role": "system", "content": f"あなたは{request.persona}として回答してください。"}]
+        messages.extend([{"role": m.role, "content": m.content} for m in request.messages])
+
+        try:
+            response = await openai.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=messages,
+                stream=True,
+                temperature=0.7,
+                max_tokens=150
+            )
+            return StreamingResponse(process_stream(response))
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"APIリクエストに失敗しました: {str(e)}"
+            )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"エラーが発生しました: {str(e)}"
+        )
+
+async def process_stream(response):
+    async for chunk in response:
+        if chunk.choices[0].delta.content:
+            yield chunk.choices[0].delta.content
 
 @app.post("/api/auth/signup", response_model=UserResponse)
 async def signup(user: User):
