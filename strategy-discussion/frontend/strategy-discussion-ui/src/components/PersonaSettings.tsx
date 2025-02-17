@@ -1,8 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Persona } from '../types';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { Card, CardHeader, CardContent } from './ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 
 interface PersonaSettingsProps {
