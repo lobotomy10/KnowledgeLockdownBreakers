@@ -12,6 +12,7 @@ export interface Message {
   persona_name: string;
   content: string;
   timestamp: string;
+  persona: Persona;
 }
 
 export interface Discussion {
