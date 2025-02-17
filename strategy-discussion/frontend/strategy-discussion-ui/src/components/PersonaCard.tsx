@@ -1,4 +1,3 @@
-import React from 'react';
 import { Persona } from '../types';
 import { Card, CardHeader, CardContent } from './ui/card';
 
@@ -7,6 +6,19 @@ interface PersonaCardProps {
 }
 
 export function PersonaCard({ persona }: PersonaCardProps) {
+  const handleUpdatePersona = async (updatedPersona: Persona) => {
+    try {
+      const response = await fetch(`http://localhost:8000/personas`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedPersona),
+      });
+      if (!response.ok) throw new Error('Failed to update persona');
+    } catch (error) {
+      console.error('Error updating persona:', error);
+    }
+  };
+
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center space-x-4 pb-2">
@@ -27,6 +39,9 @@ export function PersonaCard({ persona }: PersonaCardProps) {
           <div>
             <span className="text-sm font-medium">発言スタイル：</span>
             <span className="text-sm text-gray-600">{persona.speaking_style}</span>
+          </div>
+          <div className="pt-2">
+            <PersonaSettings persona={persona} onUpdate={handleUpdatePersona} />
           </div>
         </div>
       </CardContent>

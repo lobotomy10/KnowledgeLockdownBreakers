@@ -1,7 +1,5 @@
-import React from 'react';
 import { Message } from '../types';
 import { Card } from './ui/card';
-import { cn } from '../lib/utils';
 
 interface ChatMessageProps {
   message: Message;

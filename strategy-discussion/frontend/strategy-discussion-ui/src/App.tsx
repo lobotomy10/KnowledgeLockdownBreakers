@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Persona, Message, Discussion } from './types';
+import { useState, useEffect } from 'react';
+import { Persona, Discussion } from './types';
 import { PersonaCard } from './components/PersonaCard';
 import { ChatMessage } from './components/ChatMessage';
 import { Button } from './components/ui/button';
