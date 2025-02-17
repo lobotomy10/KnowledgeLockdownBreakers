@@ -2,12 +2,13 @@ from typing import Dict, List
 from .models import PersonaConfig, Message
 import os
 from datetime import datetime
-import openai
+from openai import AsyncOpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Initialize OpenAI client once for the module
+client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 class PersonaManager:
     def __init__(self):
@@ -68,23 +69,18 @@ class PersonaManager:
             context += f"{msg.persona_name}: {msg.content}\n"
 
         try:
-            response = await openai.ChatCompletion.acreate(
+            # Use the module-level client
+            response = await client.chat.completions.create(
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": context},
                     {"role": "user", "content": "この戦略について、あなたの立場からの意見を150文字以内で述べてください。"}
                 ],
                 max_tokens=200,
-                temperature=0.7,
-                stream=True
+                temperature=0.7
             )
             
-            full_response = ""
-            async for chunk in response:
-                if chunk and chunk.choices and chunk.choices[0].delta.content:
-                    full_response += chunk.choices[0].delta.content
-            
-            return full_response[:150]  # 150文字制限を確実に守る
+            return response.choices[0].message.content[:150]  # 150文字制限を確実に守る
             
         except Exception as e:
             return f"申し訳ありません。応答の生成中にエラーが発生しました。: {str(e)}"
