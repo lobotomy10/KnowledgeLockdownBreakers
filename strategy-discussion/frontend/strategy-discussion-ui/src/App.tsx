@@ -9,11 +9,10 @@ import { ScrollArea } from './components/ui/scroll-area';
 import { Loader2 } from 'lucide-react';
 
 import { api, APIError } from './api/client';
-import { ToastProvider, ToastViewport, Toast, ToastTitle, ToastDescription } from './components/ui/toast';
-import { useToast } from './components/ui/use-toast';
+import { ToastProvider, ToastViewport } from './components/ui/toast';
+import { toast } from './components/ui/use-toast';
 
 function App() {
-  const { toast } = useToast();
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [discussion, setDiscussion] = useState<Discussion | null>(null);
   const [strategyDocument, setStrategyDocument] = useState('');
