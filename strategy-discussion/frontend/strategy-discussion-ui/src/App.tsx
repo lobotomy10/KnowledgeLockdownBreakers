@@ -156,15 +156,13 @@ function App() {
                 />
               ))}
             </ScrollArea>
-            {discussion.is_active && (
-              {isLoading && (
-                <div className="mt-4 flex justify-center">
-                  <div className="flex items-center text-gray-500">
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    応答を生成中...
-                  </div>
+            {discussion.is_active && isLoading && (
+              <div className="mt-4 flex justify-center">
+                <div className="flex items-center text-gray-500">
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  応答を生成中...
                 </div>
-              )}
+              </div>
             )}
           </Card>
         )}
