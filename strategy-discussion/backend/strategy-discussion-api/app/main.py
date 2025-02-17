@@ -44,6 +44,24 @@ async def remove_persona(name: str):
 async def start_discussion(document: StrategyDocument):
     global current_discussion
     current_discussion = Discussion(strategy_document=document)
+    
+    # Generate first response automatically
+    personas = persona_manager.get_all_personas()
+    next_persona = personas[0]
+    
+    response = await persona_manager.generate_response(
+        next_persona.name,
+        current_discussion.strategy_document.content,
+        []
+    )
+    
+    message = Message(
+        persona_name=next_persona.name,
+        content=response,
+        timestamp=datetime.now().isoformat()
+    )
+    current_discussion.messages.append(message)
+    
     return {"status": "success", "discussion": current_discussion}
 
 @app.post("/discussion/next")
