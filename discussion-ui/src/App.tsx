@@ -114,6 +114,30 @@ function App() {
     }])
   }
 
+  const resetDiscussion = () => {
+    setMessages([])
+    setInputDocument("")
+    setIsDiscussing(false)
+    setCurrentPersonaIndex(0)
+    setError(null)
+  }
+
+  const exportDiscussion = () => {
+    const text = messages.map(m => 
+      `[${m.timestamp}] ${m.persona || (m.role === "user" ? "ユーザー" : "システム")}\n${m.content}\n`
+    ).join("\n")
+    
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `discussion-${new Date().toISOString()}.txt`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="container mx-auto p-4 max-w-4xl">
       <h1 className="text-2xl font-bold mb-4">戦略議論システム</h1>
@@ -156,6 +180,22 @@ function App() {
           >
             <StopCircle className="h-5 w-5" />
             議論終了
+          </Button>
+          <Button
+            onClick={resetDiscussion}
+            disabled={isDiscussing || messages.length === 0}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            リセット
+          </Button>
+          <Button
+            onClick={exportDiscussion}
+            disabled={messages.length === 0}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            履歴を保存
           </Button>
         </div>
       </Card>
