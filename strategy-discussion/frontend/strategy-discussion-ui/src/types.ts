@@ -4,6 +4,8 @@ export interface Persona {
   position: string;
   speaking_style: string;
   icon: string;
+  image?: string;
+  imageFile?: File;
 }
 
 export interface Message {
