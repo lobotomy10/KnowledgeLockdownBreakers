@@ -13,7 +13,7 @@ from web3 import Web3
 from eth_account import Account
 from eth_utils import to_checksum_address
 import json
-import redis.asyncio
+from redis import asyncio as aioredis
 from fastapi_limiter import FastAPILimiter
 from fastapi_limiter.depends import RateLimiter
 
@@ -27,7 +27,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 # Configure Redis and rate limiting
 @app.on_event("startup")
 async def startup():
-    redis = redis.asyncio.from_url("redis://localhost", encoding="utf-8", decode_responses=True)
+    redis = await aioredis.from_url("redis://localhost", encoding="utf-8", decode_responses=True)
     await FastAPILimiter.init(redis)
 
 # Create uploads directory if it doesn't exist
