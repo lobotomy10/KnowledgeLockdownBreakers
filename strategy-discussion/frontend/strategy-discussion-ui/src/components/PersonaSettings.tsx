@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Persona } from '../types';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import { FileInput } from './ui/file-input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 
 interface PersonaSettingsProps {
@@ -61,6 +62,21 @@ export function PersonaSettings({ persona, onUpdate }: PersonaSettingsProps) {
             <Input
               value={editedPersona.icon}
               onChange={(e) => setEditedPersona({ ...editedPersona, icon: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">画像：</label>
+            <FileInput
+              onFileSelect={(file) => {
+                if (editedPersona.image) {
+                  URL.revokeObjectURL(editedPersona.image);
+                }
+                setEditedPersona({ 
+                  ...editedPersona, 
+                  imageFile: file || undefined,
+                  image: file ? URL.createObjectURL(file) : undefined
+                });
+              }}
             />
           </div>
           <Button onClick={handleSubmit} className="w-full">保存</Button>

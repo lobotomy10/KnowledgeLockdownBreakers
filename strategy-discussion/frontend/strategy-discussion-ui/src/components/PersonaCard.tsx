@@ -26,8 +26,18 @@ export function PersonaCard({ persona }: PersonaCardProps) {
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center space-x-4 pb-2">
-        <div className="w-12 h-12 flex items-center justify-center text-3xl bg-gray-100 rounded-full">
-          {persona.icon}
+        <div className="w-12 h-12 flex items-center justify-center rounded-full overflow-hidden">
+          {persona.image ? (
+            <img 
+              src={persona.image}
+              alt={persona.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="text-3xl bg-gray-100 w-full h-full flex items-center justify-center">
+              {persona.icon}
+            </div>
+          )}
         </div>
         <div>
           <h3 className="text-lg font-semibold">{persona.name}</h3>

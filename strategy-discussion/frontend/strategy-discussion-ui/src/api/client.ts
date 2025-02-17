@@ -33,10 +33,21 @@ export const api = {
 
   async updatePersona(persona: Persona): Promise<Persona> {
     try {
+      const formData = new FormData();
+      Object.entries(persona).forEach(([key, value]) => {
+        if (key === 'imageFile' && value instanceof File) {
+          if (value.size > 300 * 1024 * 1024) {
+            throw new APIError('ファイルサイズが大きすぎます（300MB以下）');
+          }
+          formData.append('image', value);
+        } else if (value !== undefined && !(value instanceof File)) {
+          formData.append(key, String(value));
+        }
+      });
+
       const response = await fetch(`${API_URL}/personas`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(persona),
+        body: formData,
       });
       const data = await handleResponse<{ persona: Persona }>(response);
       return data.persona;
