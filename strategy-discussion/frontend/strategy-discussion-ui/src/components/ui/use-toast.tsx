@@ -1,5 +1,4 @@
 import * as React from "react"
-import { useToast as useHookToast } from "@radix-ui/react-toast"
 
 interface ToastProps {
   variant?: "default" | "destructive"
@@ -7,13 +6,26 @@ interface ToastProps {
   description?: string
 }
 
+let toastFn: (props: ToastProps) => void;
+
 export function toast(props: ToastProps) {
-  const { toast } = useHookToast()
-  toast(props)
+  if (toastFn) {
+    toastFn(props);
+  }
 }
 
 export function useToast() {
+  const [, forceUpdate] = React.useState({});
+
+  React.useEffect(() => {
+    toastFn = (props: ToastProps) => {
+      forceUpdate({});
+      // Here we would actually show the toast UI
+      console.log('Toast:', props);
+    };
+  }, []);
+
   return {
     toast,
-  }
+  };
 }
