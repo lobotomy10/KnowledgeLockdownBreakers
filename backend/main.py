@@ -13,6 +13,9 @@ from web3 import Web3
 from eth_account import Account
 from eth_utils import to_checksum_address
 import json
+import redis.asyncio
+from fastapi_limiter import FastAPILimiter
+from fastapi_limiter.depends import RateLimiter
 
 load_dotenv()
 
@@ -20,6 +23,12 @@ app = FastAPI(title="CardNote API")
 
 # Configure OpenAI
 openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# Configure Redis and rate limiting
+@app.on_event("startup")
+async def startup():
+    redis = redis.asyncio.from_url("redis://localhost", encoding="utf-8", decode_responses=True)
+    await FastAPILimiter.init(redis)
 
 # Create uploads directory if it doesn't exist
 os.makedirs("uploads", exist_ok=True)
@@ -87,6 +96,7 @@ class StreamRequest(BaseModel):
     persona: str
 
 @app.post("/chat")
+@RateLimiter(times=10, seconds=60)
 async def chat_stream(request: StreamRequest):
     try:
         # Add persona context to the messages
