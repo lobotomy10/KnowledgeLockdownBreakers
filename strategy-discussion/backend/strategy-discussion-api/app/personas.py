@@ -69,7 +69,6 @@ class PersonaManager:
             context += f"{msg.persona_name}: {msg.content}\n"
 
         try:
-            # Use the module-level client
             response = await client.chat.completions.create(
                 model="gpt-4",
                 messages=[
@@ -80,7 +79,9 @@ class PersonaManager:
                 temperature=0.7
             )
             
-            return response.choices[0].message.content[:150]  # 150文字制限を確実に守る
+            if hasattr(response.choices[0].message, 'content'):
+                return response.choices[0].message.content[:150]  # 150文字制限を確実に守る
+            return "申し訳ありません。応答の生成に失敗しました。"
             
         except Exception as e:
             return f"申し訳ありません。応答の生成中にエラーが発生しました。: {str(e)}"
