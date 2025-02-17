@@ -45,7 +45,7 @@ function App() {
       const discussion = await api.startDiscussion(strategyDocument);
       setDiscussion(discussion);
       // Start automatic message generation
-      setTimeout(getNextMessage, 3000);
+      setTimeout(getNextMessage, 1000);
     } catch (error) {
       if (error instanceof APIError) {
         toast({
@@ -70,7 +70,7 @@ function App() {
       } : null);
       // Continue automatic message generation
       if (discussion?.is_active) {
-        setTimeout(getNextMessage, 3000);
+        setTimeout(getNextMessage, 1000);
       }
     } catch (error) {
       if (error instanceof APIError) {
