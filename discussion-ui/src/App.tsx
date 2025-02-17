@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { useState } from 'react'
 import { PersonaManager } from './components/PersonaManager'
 import { ChatBox } from './components/ChatBox'
@@ -37,7 +36,7 @@ function App() {
   const streamResponse = async (messages: Message[]) => {
     try {
       setIsStreaming(true)
-      const response = await fetch("http://localhost:8000/chat", {
+      const response = await fetch("https://cardnote-backend-qhbxffln.fly.dev/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

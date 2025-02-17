@@ -105,21 +105,25 @@ async def chat_stream(
         messages = [{"role": "system", "content": f"あなたは{request.persona}として回答してください。"}]
         messages.extend([{"role": m.role, "content": m.content} for m in request.messages])
 
-        client = openai.AsyncClient(
-            api_key=os.getenv("OPENAI_API_KEY"),
-            base_url="https://api.openai.com/v1",
-            timeout=30.0
-        )
-        response = await client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=messages,
-            stream=True,
-            temperature=0.7,
-            max_tokens=150
-        )
-        return StreamingResponse(process_stream(response))
+        try:
+            response = await openai.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=messages,
+                stream=True,
+                temperature=0.7,
+                max_tokens=150
+            )
+            return StreamingResponse(process_stream(response))
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"APIリクエストに失敗しました: {str(e)}"
+            )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(
+            status_code=500,
+            detail=f"エラーが発生しました: {str(e)}"
+        )
 
 async def process_stream(response):
     async for chunk in response:

@@ -1,6 +1,6 @@
 import * as React from "react"
-import { ScrollArea } from "../components/ui/scroll-area"
-import { Card } from "../components/ui/card"
+import { ScrollArea } from "./ui/scroll-area"
+import { Card } from "./ui/card"
 
 interface Message {
   role: "system" | "user" | "assistant"

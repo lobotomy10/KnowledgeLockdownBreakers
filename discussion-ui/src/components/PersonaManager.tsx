@@ -1,5 +1,6 @@
-import { Button } from "../components/ui/button"
-import { Alert, AlertDescription } from "../components/ui/alert"
+
+import { Button } from "./ui/button"
+import { Alert, AlertDescription } from "./ui/alert"
 import { AlertCircle, Plus } from "lucide-react"
 import { PersonaCard } from "./PersonaCard"
 
