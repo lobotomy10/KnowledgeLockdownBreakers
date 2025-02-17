@@ -1,8 +1,11 @@
 from fastapi import FastAPI, HTTPException, Depends, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import List, Optional
+import openai
+from dotenv import load_dotenv
 import uuid
 import os
 from datetime import datetime
@@ -11,7 +14,12 @@ from eth_account import Account
 from eth_utils import to_checksum_address
 import json
 
+load_dotenv()
+
 app = FastAPI(title="CardNote API")
+
+# Configure OpenAI
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Create uploads directory if it doesn't exist
 os.makedirs("uploads", exist_ok=True)
@@ -69,6 +77,37 @@ class NFTMintRequest(BaseModel):
 
 class CardInteraction(BaseModel):
     interaction_type: str
+
+class Message(BaseModel):
+    role: str
+    content: str
+
+class StreamRequest(BaseModel):
+    messages: List[Message]
+    persona: str
+
+@app.post("/chat")
+async def chat_stream(request: StreamRequest):
+    try:
+        # Add persona context to the messages
+        messages = [{"role": "system", "content": f"あなたは{request.persona}として回答してください。"}]
+        messages.extend([{"role": m.role, "content": m.content} for m in request.messages])
+
+        response = await openai.ChatCompletion.acreate(
+            model="gpt-3.5-turbo",
+            messages=messages,
+            stream=True,
+            temperature=0.7,
+            max_tokens=150
+        )
+        return StreamingResponse(process_stream(response))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+async def process_stream(response):
+    async for chunk in response:
+        if chunk and chunk.choices[0].delta.content:
+            yield chunk.choices[0].delta.content
 
 @app.post("/api/auth/signup", response_model=UserResponse)
 async def signup(user: User):

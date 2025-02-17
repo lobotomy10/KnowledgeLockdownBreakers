@@ -1,0 +1,7 @@
+fastapi==0.109.2
+uvicorn==0.27.1
+openai==1.11.1
+python-dotenv==1.0.1
+pydantic==2.6.1
+web3==6.15.1
+python-multipart==0.0.9
