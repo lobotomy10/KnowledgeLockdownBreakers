@@ -8,7 +8,8 @@ import { Card } from './components/ui/card';
 import { ScrollArea } from './components/ui/scroll-area';
 import { Loader2 } from 'lucide-react';
 
-const API_URL = 'http://localhost:8000';
+import { api, APIError } from './api/client';
+import { toast } from './components/ui/use-toast';
 
 function App() {
   const [personas, setPersonas] = useState<Persona[]>([]);
@@ -22,11 +23,16 @@ function App() {
 
   const fetchPersonas = async () => {
     try {
-      const response = await fetch(`${API_URL}/personas`);
-      const data = await response.json();
-      setPersonas(data.personas);
+      const personas = await api.getPersonas();
+      setPersonas(personas);
     } catch (error) {
-      console.error('Error fetching personas:', error);
+      if (error instanceof APIError) {
+        toast({
+          variant: "destructive",
+          title: "エラー",
+          description: error.message,
+        });
+      }
     }
   };
 
@@ -35,16 +41,17 @@ function App() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_URL}/discussion/start`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: strategyDocument }),
-      });
-      const data = await response.json();
-      setDiscussion(data.discussion);
+      const discussion = await api.startDiscussion(strategyDocument);
+      setDiscussion(discussion);
       await getNextMessage();
     } catch (error) {
-      console.error('Error starting discussion:', error);
+      if (error instanceof APIError) {
+        toast({
+          variant: "destructive",
+          title: "エラー",
+          description: error.message,
+        });
+      }
     }
     setIsLoading(false);
   };
@@ -54,28 +61,35 @@ function App() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_URL}/discussion/next`, {
-        method: 'POST',
-      });
-      const data = await response.json();
+      const message = await api.getNextMessage();
       setDiscussion(prev => prev ? {
         ...prev,
-        messages: [...prev.messages, data.message],
+        messages: [...prev.messages, message],
       } : null);
     } catch (error) {
-      console.error('Error getting next message:', error);
+      if (error instanceof APIError) {
+        toast({
+          variant: "destructive",
+          title: "エラー",
+          description: error.message,
+        });
+      }
     }
     setIsLoading(false);
   };
 
   const stopDiscussion = async () => {
     try {
-      await fetch(`${API_URL}/discussion/stop`, {
-        method: 'POST',
-      });
+      await api.stopDiscussion();
       setDiscussion(prev => prev ? { ...prev, is_active: false } : null);
     } catch (error) {
-      console.error('Error stopping discussion:', error);
+      if (error instanceof APIError) {
+        toast({
+          variant: "destructive",
+          title: "エラー",
+          description: error.message,
+        });
+      }
     }
   };
 

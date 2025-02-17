@@ -9,14 +9,15 @@ interface PersonaCardProps {
 export function PersonaCard({ persona }: PersonaCardProps) {
   const handleUpdatePersona = async (updatedPersona: Persona) => {
     try {
-      const response = await fetch(`http://localhost:8000/personas`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedPersona),
-      });
-      if (!response.ok) throw new Error('Failed to update persona');
+      await api.updatePersona(updatedPersona);
     } catch (error) {
-      console.error('Error updating persona:', error);
+      if (error instanceof APIError) {
+        toast({
+          variant: "destructive",
+          title: "エラー",
+          description: error.message,
+        });
+      }
     }
   };
 
