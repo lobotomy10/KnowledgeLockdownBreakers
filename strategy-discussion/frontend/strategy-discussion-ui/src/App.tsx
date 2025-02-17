@@ -133,13 +133,39 @@ function App() {
               議論を開始
             </Button>
             {discussion?.is_active && (
-              <Button
-                variant="destructive"
-                onClick={stopDiscussion}
-                disabled={isLoading}
-              >
-                議論を終了
-              </Button>
+              <>
+                <Button
+                  variant="destructive"
+                  onClick={stopDiscussion}
+                  disabled={isLoading}
+                >
+                  議論を終了
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    if (discussion?.messages.length && window.confirm('議論内容をテキストファイルとして保存しますか？')) {
+                      const text = `戦略文書:\n${discussion.strategy_document.content}\n\n議論内容:\n` + 
+                        discussion.messages
+                          .map(m => `${m.persona_name}: ${m.content}`)
+                          .join('\n\n');
+                      const blob = new Blob([text], { type: 'text/plain' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `discussion_${new Date().toISOString().split('T')[0]}.txt`;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(url);
+                    }
+                    setDiscussion(null);
+                    setStrategyDocument('');
+                  }}
+                >
+                  リセット
+                </Button>
+              </>
             )}
           </div>
         </Card>
