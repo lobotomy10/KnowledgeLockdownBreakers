@@ -10,7 +10,9 @@ import { Loader2 } from 'lucide-react';
 
 import { api, APIError } from './api/client';
 import { ToastProvider, ToastViewport } from './components/ui/toast';
-import { toast } from './components/ui/use-toast';
+import { useToast } from './components/ui/use-toast';
+
+const toast = useToast().toast;
 
 function App() {
   const [personas, setPersonas] = useState<Persona[]>([]);
