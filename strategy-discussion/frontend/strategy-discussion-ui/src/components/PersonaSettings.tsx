@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Persona } from '../types';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { FileInput } from './ui/file-input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
+import { toast } from '../lib/toast';
 
 interface PersonaSettingsProps {
   persona: Persona;
@@ -14,9 +15,26 @@ export function PersonaSettings({ persona, onUpdate }: PersonaSettingsProps) {
   const [editedPersona, setEditedPersona] = useState<Persona>(persona);
   const [isOpen, setIsOpen] = useState(false);
 
+  // Cleanup object URLs when component unmounts
+  useEffect(() => {
+    return () => {
+      if (editedPersona.image && editedPersona.image.startsWith('blob:')) {
+        URL.revokeObjectURL(editedPersona.image);
+      }
+    };
+  }, [editedPersona.image]);
+
   const handleSubmit = async () => {
-    await onUpdate(editedPersona);
-    setIsOpen(false);
+    try {
+      await onUpdate(editedPersona);
+      setIsOpen(false);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "エラー",
+        description: error instanceof Error ? error.message : "画像のアップロードに失敗しました",
+      });
+    }
   };
 
   return (
@@ -64,7 +82,7 @@ export function PersonaSettings({ persona, onUpdate }: PersonaSettingsProps) {
               onChange={(e) => setEditedPersona({ ...editedPersona, icon: e.target.value })}
             />
           </div>
-          <div>
+          <div className="space-y-2">
             <label className="text-sm font-medium">画像：</label>
             <FileInput
               onFileSelect={(file) => {
@@ -78,8 +96,17 @@ export function PersonaSettings({ persona, onUpdate }: PersonaSettingsProps) {
                 });
               }}
             />
+            {editedPersona.image && (
+              <div className="mt-2 flex justify-center">
+                <img 
+                  src={editedPersona.image} 
+                  alt={editedPersona.name}
+                  className="w-24 h-24 rounded-full object-cover border-2 border-violet-100"
+                />
+              </div>
+            )}
           </div>
-          <Button onClick={handleSubmit} className="w-full">保存</Button>
+          <Button onClick={handleSubmit} className="w-full mt-4">保存</Button>
         </div>
       </DialogContent>
     </Dialog>
