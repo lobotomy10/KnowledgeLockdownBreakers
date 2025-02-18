@@ -51,8 +51,8 @@ export function PersonaCard({ persona }: PersonaCardProps) {
             <span className="text-sm text-gray-600">{persona.position}</span>
           </div>
           <div>
-            <span className="text-sm font-medium">発言スタイル：</span>
-            <span className="text-sm text-gray-600">{persona.speaking_style}</span>
+            <span className="text-sm font-medium">詳細：</span>
+            <span className="text-sm text-gray-600">{persona.details}</span>
           </div>
           <div className="pt-2">
             <PersonaSettings persona={persona} onUpdate={handleUpdatePersona} />
