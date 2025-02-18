@@ -2,7 +2,7 @@ export interface Persona {
   name: string;
   role: string;
   position: string;
-  speaking_style: string;
+  details: string;
   icon: string;
   image?: string;
   imageFile?: File;

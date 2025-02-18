@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Persona } from '../types';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
 import { FileInput } from './ui/file-input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 
@@ -50,11 +51,14 @@ export function PersonaSettings({ persona, onUpdate }: PersonaSettingsProps) {
               onChange={(e) => setEditedPersona({ ...editedPersona, position: e.target.value })}
             />
           </div>
-          <div>
-            <label className="text-sm font-medium">発言スタイル：</label>
-            <Input
-              value={editedPersona.speaking_style}
-              onChange={(e) => setEditedPersona({ ...editedPersona, speaking_style: e.target.value })}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">詳細：</label>
+            <Textarea
+              value={editedPersona.details}
+              onChange={(e) => setEditedPersona({ ...editedPersona, details: e.target.value })}
+              placeholder="発言スタイルなど"
+              maxLength={200}
+              className="min-h-[100px] resize-none"
             />
           </div>
           <div>

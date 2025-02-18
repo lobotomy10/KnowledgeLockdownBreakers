@@ -1,4 +1,4 @@
-import { Message, Persona } from '../types';
+import { Message } from '../types';
 import { Card } from './ui/card';
 
 interface ChatMessageProps {
