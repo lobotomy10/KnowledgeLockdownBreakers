@@ -58,7 +58,8 @@ export function PersonaSettings({ persona, onUpdate }: PersonaSettingsProps) {
               onChange={(e) => setEditedPersona({ ...editedPersona, details: e.target.value })}
               placeholder="発言スタイルなど"
               maxLength={200}
-              className="h-[150px] min-h-[150px] resize-none"
+              rows={6}
+              className="w-full min-h-[150px] resize-vertical"
             />
           </div>
           <div>
