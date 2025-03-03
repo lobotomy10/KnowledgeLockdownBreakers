@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sidebar Component Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    .content {
+      margin-left: 0;
+      transition: margin-left 0.3s;
+    }
+    .content.left_sidebar {
+      margin-left: 250px;
+    }
+    .content.right_sidebar {
+      margin-right: 500px;
+    }
+    .content.full_sidebar {
+      margin-left: 250px;
+      margin-right: 500px;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <div class="content">
+    <h1>Main Content</h1>
+    <p>This is the main content area that would adjust based on sidebar visibility.</p>
+  </div>
+
+  <!-- This would be where the React app mounts -->
+  <script>
+    // Simulating the sidebar behavior for demonstration
+    document.addEventListener('DOMContentLoaded', function() {
+      // Create mock elements to demonstrate the structure
+      const leftSidebar = document.createElement('div');
+      leftSidebar.id = 'leftSidebar';
+      leftSidebar.className = 'sidebar leftsidebar-hidden';
+      
+      const rightSidebar = document.createElement('div');
+      rightSidebar.id = 'rightSidebar';
+      rightSidebar.className = 'sidebar rightsidebar-hidden';
+      
+      document.body.prepend(leftSidebar);
+      document.body.prepend(rightSidebar);
+      
+      // Add some content to demonstrate scrolling
+      const sidebarHeader = document.createElement('div');
+      sidebarHeader.className = 'sidebar-header';
+      sidebarHeader.innerHTML = '<div style="font-size: 25px;">My History</div>';
+      
+      const sidebarContent = document.createElement('div');
+      sidebarContent.className = 'sidebar-content';
+      
+      // Add many items to demonstrate scrolling
+      for (let i = 0; i < 20; i++) {
+        const item = document.createElement('div');
+        item.innerHTML = `
+          <details class="accordion-004">
+            <summary>Item ${i}</summary>
+            <p>┗ ${i} agent</p>
+            <p>┗ ${i} agent</p>
+            <p>┗ ${i} agent</p>
+          </details>
+        `;
+        sidebarContent.appendChild(item);
+      }
+      
+      leftSidebar.appendChild(document.createElement('button'));
+      leftSidebar.appendChild(sidebarHeader);
+      leftSidebar.appendChild(sidebarContent);
+      
+      // Add button to toggle sidebar
+      const toggleButton = document.createElement('button');
+      toggleButton.textContent = 'Toggle Left Sidebar';
+      toggleButton.style.position = 'fixed';
+      toggleButton.style.top = '10px';
+      toggleButton.style.right = '10px';
+      toggleButton.style.zIndex = '2000';
+      
+      toggleButton.addEventListener('click', function() {
+        if (leftSidebar.classList.contains('leftsidebar-hidden')) {
+          leftSidebar.classList.remove('leftsidebar-hidden');
+          leftSidebar.classList.add('leftsidebar-show');
+        } else {
+          leftSidebar.classList.remove('leftsidebar-show');
+          leftSidebar.classList.add('leftsidebar-hidden');
+        }
+      });
+      
+      document.body.appendChild(toggleButton);
+    });
+  </script>
+  
+  <!-- Include the CSS -->
+  <link rel="stylesheet" href="../src/components/css/Sidebar.css">
+</body>
+</html>

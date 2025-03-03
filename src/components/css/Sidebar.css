@@ -1,0 +1,240 @@
+.sidebar {
+  width: 200px;
+  height: 100%;
+  right: 200;
+  background-color: #f4f4f4;
+  padding: 15px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  border: 2px solid #333333;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 左サイドバー表示時 */
+.leftsidebar-show {
+  right: 0;
+  transition: 0.5s;
+}
+/* 左サイドバー非表示時 */
+.leftsidebar-hidden {
+  right: 240px;
+  transition: 0.5s;
+}
+
+/* 右サイドバー表示時 */
+.rightsidebar-show {
+  left: 1135px;
+  transition: 0.5s;
+}
+
+/* 右サイドバー非表示時 */
+.rightsidebar-hidden {
+  left: 1680px;
+  transition: 0.5s;
+}
+
+.sidebar-header {
+  padding: 10px;
+  padding-top: 40px;
+  flex-shrink: 0;
+}
+
+.sidebar-content {
+  flex-grow: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px;
+  height: calc(100% - 80px);
+  scrollbar-width: thin;
+}
+
+/* Custom scrollbar styling for webkit browsers */
+.sidebar-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.sidebar ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sidebar-item {
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.sidebar-item:hover {
+  background-color: #e0e0e0;
+}
+
+.app {
+  height: 1000px;
+  display: flex;
+  min-width: 1000px;
+  text-align: center;
+}
+
+.content {
+  position: fixed;
+  padding: 20px;
+  width: 100%;
+  background-color: #f4f4f4;
+}
+
+.content.full_sidebar {
+  padding: 20px;
+  width: 60%;
+  right:500px;
+  transition: 0.5s;
+  background-color: #f4f4f4;
+}
+
+.content.left_sidebar {
+  padding: 20px;
+  left:180px;
+  width: 90%;
+  transition: 0.5s;
+  background-color: #f4f4f4;
+}
+.content.right_sidebar {
+  padding: 20px;
+  right:450px;
+  width: 75%;
+  transition: 0.5s;
+  background-color: #f4f4f4;
+}
+.content.not_sidebar {
+  position: fixed;
+  padding: 20px;
+  width: 100%;
+  transition: 0.5s;
+  background-color: #f4f4f4;
+}
+
+#leftSidebar {
+  z-index: 10000;
+}
+
+#rightSidebar {
+  width : 500px;
+  z-index: 10000;
+}
+
+.leftSidebarButton {
+  font-size: large;
+  margin-left: 220px;
+  border-color: #333333;
+  position: absolute;
+  top: 10px;
+  cursor: pointer;
+}
+
+.rightSidebarButton {
+  font-size: large;
+  margin-left: -600px;
+  position: relative;
+  border-color: #333333;
+  z-index: 100;
+  cursor: pointer;
+}
+
+.accordion-004 {
+  max-width: 500px;
+  margin-bottom: 7px;
+  border: 2px solid #333333;
+  border-radius: 5px;
+  background-color: #fff;
+}
+
+.accordion-004 summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  padding: 1em 2em;
+  color: #333333;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.accordion-004 summary::-webkit-details-marker {
+  display: none;
+}
+
+.accordion-004 summary::after {
+  transform: translateY(-25%) rotate(45deg);
+  width: 7px;
+  height: 7px;
+  margin-left: 10px;
+  border-bottom: 3px solid #333333b3;
+  border-right: 3px solid #333333b3;
+  content: '';
+  transition: transform .3s;
+}
+
+.accordion-004[open] summary::after {
+  transform: rotate(225deg);
+}
+
+.accordion-004 p {
+  transform: translateY(-10px);
+  opacity: 0;
+  margin: 0;
+  padding: .3em 2em 1.5em;
+  color: #0870f7;
+  transition: transform .5s, opacity .5s;
+}
+
+.accordion-004[open] p {
+  transform: none;
+  opacity: 1;
+}
+
+/* list */
+.list-4 div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  padding: 10px 0;
+  background-color: #f4f4f4;
+  color: #000;
+  font-size: 25px;
+  font-weight: 600;
+}
+
+.list-4 ul {
+  list-style-type: disc;
+  margin: 0;
+  background-color: #fff;
+  padding: 1em 1em 1em 2.5em;
+  text-align: left;
+}
+
+.list-4 li {
+  padding: .3em .3em .3em 0;
+}
+
+.list-4 li::marker {
+  color: #54636d;
+  font-size: 1.1em;
+}
