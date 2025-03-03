@@ -79,7 +79,7 @@ const ChatComponent: React.FC = () => {
       
       recognition.continuous = true;
       recognition.interimResults = true;
-      recognition.lang = 'en-US';
+      recognition.lang = 'ja-JP';
       
       recognition.onresult = (event: any) => {
         const current = event.resultIndex;
