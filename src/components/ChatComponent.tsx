@@ -81,10 +81,18 @@ const ChatComponent: React.FC = () => {
       recognition.interimResults = true;
       recognition.lang = 'ja-JP';
       
+      // Track the last processed result to avoid duplicates
+      const lastResultRef = React.useRef<string>('');
+      
       recognition.onresult = (event: any) => {
         const current = event.resultIndex;
         const transcriptResult = event.results[current][0].transcript;
-        setInput((prev) => prev + transcriptResult);
+        
+        // Only update if this is a new result
+        if (transcriptResult !== lastResultRef.current) {
+          lastResultRef.current = transcriptResult;
+          setInput((prev) => prev + ' ' + transcriptResult.trim());
+        }
       };
       
       recognition.onerror = (event: any) => {
