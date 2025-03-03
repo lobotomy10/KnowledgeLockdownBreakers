@@ -52,6 +52,7 @@
   display: flex;
   width: 100%;
   margin-bottom: 10px;
+  align-items: center;
 }
 
 #input-container input {
@@ -60,12 +61,14 @@
   border: 1px solid #ddd;
   border-radius: 20px;
   font-size: 14px;
-  margin-right: 10px;
+  margin-right: 5px;
+  min-width: 0; /* Prevents flex item from overflowing */
 }
 
 .button-container {
   display: flex;
   justify-content: flex-end;
+  flex-shrink: 0; /* Prevents buttons from shrinking */
 }
 
 #input-container button {
