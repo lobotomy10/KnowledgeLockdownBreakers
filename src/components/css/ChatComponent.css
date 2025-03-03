@@ -61,14 +61,16 @@
   border: 1px solid #ddd;
   border-radius: 20px;
   font-size: 14px;
-  margin-right: 5px;
+  margin-right: 2px;
   min-width: 0; /* Prevents flex item from overflowing */
+  width: 100%; /* Ensures input takes full width */
 }
 
 .button-container {
   display: flex;
   justify-content: flex-end;
   flex-shrink: 0; /* Prevents buttons from shrinking */
+  white-space: nowrap; /* Prevents button text from wrapping */
 }
 
 #input-container button {
