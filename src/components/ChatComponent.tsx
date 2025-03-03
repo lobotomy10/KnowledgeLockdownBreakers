@@ -138,18 +138,20 @@ const ChatComponent: React.FC = () => {
             ))}
           </div>
           <div id="input-container">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => { if (e.key === 'Enter') sendMessage(); }}
-              placeholder="Type a message..."
-            />
-            <div className="button-container">
-              <button onClick={sendMessage}>Send</button>
-              <button onClick={toggleListening} className="voice-button">
-                {isListening ? 'Stop Voice' : 'Voice Message'}
-              </button>
+            <div className="input-row">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={(e) => { if (e.key === 'Enter') sendMessage(); }}
+                placeholder="Type a message..."
+              />
+              <div className="button-container">
+                <button onClick={sendMessage}>Send</button>
+                <button onClick={toggleListening} className="voice-button">
+                  {isListening ? 'Stop Voice' : 'Voice Message'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

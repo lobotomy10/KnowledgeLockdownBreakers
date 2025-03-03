@@ -48,19 +48,24 @@
   border-top: 1px solid #eee;
 }
 
+.input-row {
+  display: flex;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
 #input-container input {
   flex: 1;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 20px;
-  margin-bottom: 10px;
   font-size: 14px;
+  margin-right: 10px;
 }
 
 .button-container {
   display: flex;
   justify-content: flex-end;
-  width: 100%;
 }
 
 #input-container button {
