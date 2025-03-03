@@ -18,6 +18,9 @@ const ChatComponent: React.FC = () => {
     const [input, setInput] = React.useState('');
     const [isListening, setIsListening] = React.useState(false);
     
+    // Create a ref to store the SpeechRecognition instance
+    const recognitionRef = React.useRef<any>(null);
+    
     // Initialize speech recognition
     React.useEffect(() => {
       // Check if browser supports SpeechRecognition
@@ -25,10 +28,14 @@ const ChatComponent: React.FC = () => {
         console.error('Speech recognition not supported in this browser');
         return;
       }
+      
+      // Clean up function
+      return () => {
+        if (recognitionRef.current) {
+          recognitionRef.current.stop();
+        }
+      };
     }, []);
-
-    // Get SpeechRecognition constructor
-    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     
     // send message 本実装時はelseは不要
     const sendMessage = () => {
@@ -54,12 +61,22 @@ const ChatComponent: React.FC = () => {
     
     // Voice input functions
     const startListening = () => {
+      const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      
       if (!SpeechRecognitionAPI) {
         console.error('Speech recognition not supported');
         return;
       }
       
-      const recognition = new SpeechRecognitionAPI();
+      // If we already have an instance, stop it first
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      
+      // Create a new instance and store it in the ref
+      recognitionRef.current = new SpeechRecognitionAPI();
+      const recognition = recognitionRef.current;
+      
       recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = 'en-US';
@@ -88,11 +105,10 @@ const ChatComponent: React.FC = () => {
     };
     
     const stopListening = () => {
-      if (!SpeechRecognitionAPI) return;
-      
-      const recognition = new SpeechRecognitionAPI();
-      recognition.stop();
-      setIsListening(false);
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+        setIsListening(false);
+      }
     };
     
     const toggleListening = () => {
