@@ -1,3 +1,5 @@
+/// <reference types="react" />
+
 declare namespace React {
   type Key = string | number;
   
@@ -36,38 +38,43 @@ declare module '@xyflow/react' {
   export const ReactFlow: any;
 }
 
-// Add SpeechRecognition types
-interface SpeechRecognition {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  start(): void;
-  stop(): void;
-  onresult: (event: any) => void;
-  onerror: (event: any) => void;
-  onend: () => void;
-}
+// Make this file a module
+export {};
 
-interface SpeechRecognitionEvent {
-  resultIndex: number;
-  results: {
-    [index: number]: {
+// Add SpeechRecognition types
+declare global {
+  interface SpeechRecognition {
+    continuous: boolean;
+    interimResults: boolean;
+    lang: string;
+    start(): void;
+    stop(): void;
+    onresult: (event: any) => void;
+    onerror: (event: any) => void;
+    onend: () => void;
+  }
+
+  interface SpeechRecognitionEvent {
+    resultIndex: number;
+    results: {
       [index: number]: {
-        transcript: string;
+        [index: number]: {
+          transcript: string;
+        };
       };
     };
-  };
-}
+  }
 
-interface SpeechRecognitionErrorEvent {
-  error: string;
-}
+  interface SpeechRecognitionErrorEvent {
+    error: string;
+  }
 
-interface Window {
-  SpeechRecognition: {
-    new(): SpeechRecognition;
-  };
-  webkitSpeechRecognition: {
-    new(): SpeechRecognition;
-  };
+  interface Window {
+    SpeechRecognition: {
+      new(): SpeechRecognition;
+    };
+    webkitSpeechRecognition: {
+      new(): SpeechRecognition;
+    };
+  }
 }
