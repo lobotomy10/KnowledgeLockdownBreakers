@@ -1,8 +1,8 @@
 // React imports
 import React from 'react';
 import './css/Sidebar.css';
-import { ReactFlow } from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
+// Mock ReactFlow for development
+const ReactFlow = (props: any) => <div>ReactFlow Component (Mock)</div>;
 
 // Import useState and useEffect directly from the React object
 const { useState, useEffect } = React;
@@ -121,7 +121,9 @@ const Sidebar: React.FC<SidebarProps> = ({ items, sidebar }) => {
             <div>
                 <h2>Agent Status</h2>
                 <div style={{ width: '500px', height: '350px', backgroundColor:'#fff' }}>
-                    <ReactFlow nodes={initialNodes} edges={initialEdges} />
+                    {/* ReactFlow component commented out until library is available */}
+                    {/* <ReactFlow nodes={initialNodes} edges={initialEdges} /> */}
+                    <div>Graph visualization placeholder</div>
                 </div>
                 <div className="list-4">
                     <div>関連データ</div>

@@ -33,11 +33,41 @@ declare module '@xyflow/react' {
     [key: string]: any;
   }
   
-  export const ReactFlow: React.FC<ReactFlowProps>;
+  export const ReactFlow: any;
 }
 
 // Add SpeechRecognition types
+interface SpeechRecognition {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start(): void;
+  stop(): void;
+  onresult: (event: any) => void;
+  onerror: (event: any) => void;
+  onend: () => void;
+}
+
+interface SpeechRecognitionEvent {
+  resultIndex: number;
+  results: {
+    [index: number]: {
+      [index: number]: {
+        transcript: string;
+      };
+    };
+  };
+}
+
+interface SpeechRecognitionErrorEvent {
+  error: string;
+}
+
 interface Window {
-  SpeechRecognition: any;
-  webkitSpeechRecognition: any;
+  SpeechRecognition: {
+    new(): SpeechRecognition;
+  };
+  webkitSpeechRecognition: {
+    new(): SpeechRecognition;
+  };
 }

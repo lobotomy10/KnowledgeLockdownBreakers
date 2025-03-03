@@ -2,25 +2,8 @@
 import './css/ChatComponent.css';
 import './css/Sidebar.css';
 
-// Define React for TypeScript
-declare namespace React {
-  interface FC<P = {}> {
-    (props: P): JSX.Element | null;
-  }
-  
-  function useState<T>(initialState: T | (() => T)): [T, (newState: T | ((prevState: T) => T)) => void];
-  function useEffect(effect: () => void | (() => void), deps?: ReadonlyArray<any>): void;
-}
-
-// Define JSX for TypeScript
-declare namespace JSX {
-  interface Element {}
-  interface IntrinsicElements {
-    div: any;
-    input: any;
-    button: any;
-  }
-}
+// Import React
+import * as React from 'react';
 
 // Define Message interface
 interface Message {
@@ -28,44 +11,7 @@ interface Message {
   sender: 'self' | 'bot';
 }
 
-// Define SpeechRecognition interfaces
-interface SpeechRecognitionEvent {
-  resultIndex: number;
-  results: {
-    [index: number]: {
-      [index: number]: {
-        transcript: string;
-      };
-    };
-  };
-}
-
-interface SpeechRecognitionErrorEvent {
-  error: string;
-}
-
-interface SpeechRecognition {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  start(): void;
-  stop(): void;
-  onresult: (event: SpeechRecognitionEvent) => void;
-  onerror: (event: SpeechRecognitionErrorEvent) => void;
-  onend: () => void;
-}
-
-// Define SpeechRecognition global types
-declare global {
-  interface Window {
-    SpeechRecognition: {
-      new(): SpeechRecognition;
-    };
-    webkitSpeechRecognition: {
-      new(): SpeechRecognition;
-    };
-  }
-}
+// SpeechRecognition interfaces are defined in react-app-env.d.ts
 
 const ChatComponent: React.FC = () => {
     const [messages, setMessages] = React.useState<Message[]>([]);
@@ -82,7 +28,7 @@ const ChatComponent: React.FC = () => {
     }, []);
 
     // Get SpeechRecognition constructor
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     
     // send message 本実装時はelseは不要
     const sendMessage = () => {
@@ -108,23 +54,23 @@ const ChatComponent: React.FC = () => {
     
     // Voice input functions
     const startListening = () => {
-      if (!SpeechRecognition) {
+      if (!SpeechRecognitionAPI) {
         console.error('Speech recognition not supported');
         return;
       }
       
-      const recognition = new SpeechRecognition();
+      const recognition = new SpeechRecognitionAPI();
       recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = 'en-US';
       
-      recognition.onresult = (event: SpeechRecognitionEvent) => {
+      recognition.onresult = (event: any) => {
         const current = event.resultIndex;
         const transcriptResult = event.results[current][0].transcript;
         setInput((prev) => prev + transcriptResult);
       };
       
-      recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      recognition.onerror = (event: any) => {
         console.error('Speech recognition error', event.error);
         setIsListening(false);
       };
@@ -142,9 +88,9 @@ const ChatComponent: React.FC = () => {
     };
     
     const stopListening = () => {
-      if (!SpeechRecognition) return;
+      if (!SpeechRecognitionAPI) return;
       
-      const recognition = new SpeechRecognition();
+      const recognition = new SpeechRecognitionAPI();
       recognition.stop();
       setIsListening(false);
     };
