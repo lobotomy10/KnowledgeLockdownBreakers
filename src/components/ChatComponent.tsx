@@ -18,8 +18,9 @@ const ChatComponent: React.FC = () => {
     const [input, setInput] = React.useState('');
     const [isListening, setIsListening] = React.useState(false);
     
-    // Create a ref to store the SpeechRecognition instance
+    // Create refs to store the SpeechRecognition instance and last result
     const recognitionRef = React.useRef<any>(null);
+    const lastResultRef = React.useRef<string>('');
     
     // Initialize speech recognition
     React.useEffect(() => {
@@ -81,8 +82,8 @@ const ChatComponent: React.FC = () => {
       recognition.interimResults = true;
       recognition.lang = 'ja-JP';
       
-      // Track the last processed result to avoid duplicates
-      const lastResultRef = React.useRef<string>('');
+      // Reset the last result ref when starting a new recognition session
+      lastResultRef.current = '';
       
       recognition.onresult = (event: any) => {
         const current = event.resultIndex;
