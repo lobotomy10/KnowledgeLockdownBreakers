@@ -458,18 +458,35 @@ const ChatComponent: React.FC = () => {
           </div>
           <div id="input-container">
             <div className="input-row">
-              <input
-                type="text"
+              <textarea
+                className="message-textarea"
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={(e) => { 
-                  if (e.key === 'Enter' && !awaitingChoice) {
+                onChange={(e) => {
+                  setInput(e.target.value);
+                  // Auto-resize the textarea based on content
+                  e.target.style.height = 'auto';
+                  const newHeight = Math.min(e.target.scrollHeight, 96); // Max height for 4 lines (24px per line)
+                  e.target.style.height = `${newHeight}px`;
+                }}
+                onKeyDown={(e) => { 
+                  if (e.key === 'Enter' && !e.shiftKey && !awaitingChoice) {
                     e.preventDefault();
                     sendMessage();
+                  } else if (e.key === 'Enter' && e.shiftKey) {
+                    // Allow Shift+Enter for line breaks
+                    // No need to do anything special as the default behavior will insert a line break
                   }
                 }}
-                placeholder="Type a message..."
+                placeholder="メッセージを入力..."
                 disabled={awaitingChoice}
+                rows={1}
+                ref={(textareaRef) => {
+                  // Initialize height when component mounts
+                  if (textareaRef) {
+                    textareaRef.style.height = 'auto';
+                    textareaRef.style.height = `${Math.min(textareaRef.scrollHeight, 96)}px`;
+                  }
+                }}
               />
               <div className="button-container">
                 <button onClick={sendMessage} disabled={awaitingChoice}>Send</button>

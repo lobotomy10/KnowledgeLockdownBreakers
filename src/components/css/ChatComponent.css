@@ -112,10 +112,11 @@
   display: flex;
   width: 100%;
   margin-bottom: 10px;
-  align-items: center;
+  align-items: flex-end; /* Align items to bottom for better layout with expanding textarea */
 }
 
-#input-container input {
+#input-container input,
+#input-container textarea.message-textarea {
   flex: 1;
   padding: 10px;
   border: 1px solid #ddd;
@@ -126,11 +127,35 @@
   width: 100%; /* Ensures input takes full width */
 }
 
+#input-container textarea.message-textarea {
+  resize: none; /* Disable manual resizing */
+  overflow-y: auto; /* Enable vertical scrolling */
+  min-height: 24px; /* Height for single line */
+  max-height: 96px; /* Max height for 4 lines */
+  line-height: 1.5; /* Consistent line height */
+  transition: height 0.2s ease; /* Smooth height transition */
+  font-family: inherit; /* Use the same font as the rest of the app */
+  box-sizing: border-box; /* Include padding in height calculation */
+}
+
+/* Add a hint about Shift+Enter for line breaks */
+#input-container::after {
+  content: "Shift+Enter で改行";
+  display: block;
+  font-size: 11px;
+  color: #888;
+  text-align: right;
+  margin-top: -8px;
+  margin-right: 10px;
+  font-style: italic;
+}
+
 .button-container {
   display: flex;
   justify-content: flex-end;
   flex-shrink: 0; /* Prevents buttons from shrinking */
   white-space: nowrap; /* Prevents button text from wrapping */
+  align-self: flex-end; /* Aligns buttons to the bottom when textarea expands */
 }
 
 #input-container button {
