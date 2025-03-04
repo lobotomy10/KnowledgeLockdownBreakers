@@ -379,8 +379,8 @@ const ChatComponent: React.FC = () => {
               />
               <div className="button-container">
                 <button onClick={sendMessage} disabled={awaitingChoice}>Send</button>
-                <button onClick={toggleListening} className="voice-button" aria-label={isListening ? 'Stop Voice' : 'Voice Message'}>
-                  <span className="voice-icon">{isListening ? '⏹' : '🎤'}</span>
+                <button onClick={toggleListening} className="voice-button" aria-label={isListening ? '音声入力停止' : '音声入力'}>
+                  <span className="voice-icon">{isListening ? '■' : '♪'}</span>
                 </button>
               </div>
             </div>
