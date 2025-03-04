@@ -16,14 +16,31 @@ interface Message {
 // Define conversation states
 type ConversationState = 
   | 'initial' 
-  | 'thinking' 
-  | 'agent_selection' 
-  | 'information_request' 
-  | 'dashboard_response' 
-  | 'person_consultation';
+  | 'business_understanding' 
+  | 'business_issue_inquiry' 
+  | 'data_inquiry' 
+  | 'budget_inquiry' 
+  | 'requirements_inquiry' 
+  | 'schedule_inquiry' 
+  | 'summary_presentation';
 
-// Define agent types
-type AgentType = 'sales_support' | 'deal_promotion' | 'technical_consultation';
+// Define requirement data structure
+interface RequirementsSummary {
+  company_name?: string;
+  company_industry?: string;
+  company_main_business_content?: string;
+  company_annual_sales?: string;
+  business_issue?: string;
+  business_issue_plan?: string;
+  business_issue_status?: string;
+  business_issue_value?: string;
+  service?: string;
+  tech_usage_image?: string;
+  available_data?: string;
+  budget?: string;
+  introduction_schedule?: string;
+  requirements?: string;
+}
 
 // SpeechRecognition interfaces are defined in react-app-env.d.ts
 
@@ -32,20 +49,33 @@ const ChatComponent: React.FC = () => {
     const [input, setInput] = React.useState('');
     const [isListening, setIsListening] = React.useState(false);
     const [conversationState, setConversationState] = React.useState<ConversationState>('initial');
-    const [selectedAgent, setSelectedAgent] = React.useState<AgentType | null>(null);
     const [awaitingChoice, setAwaitingChoice] = React.useState<boolean>(false);
+    const [requirementsSummary, setRequirementsSummary] = React.useState<RequirementsSummary>({
+      company_name: '株式会社アンビション DX ホールディングス',
+      company_industry: '不動産',
+      company_main_business_content: '賃貸DXプロパティマネジメント事業、賃貸DX賃貸仲介事業、売買DXインベスト事業、インキュベーション事業',
+      company_annual_sales: '30,486百万円（2024年06月期）',
+      service: 'for Vision'
+    });
     
     // Create refs to store the SpeechRecognition instance and last result
     const recognitionRef = React.useRef<any>(null);
     const lastResultRef = React.useRef<string>('');
     
-    // Initialize speech recognition
+    // Initialize speech recognition and welcome message
     React.useEffect(() => {
       // Check if browser supports SpeechRecognition
       if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
         console.error('Speech recognition not supported in this browser');
-        return;
       }
+      
+      // Add welcome message
+      setMessages([
+        { 
+          text: 'こんにちは！商談支援AIアシスタントです。ご用件をお聞かせください。', 
+          sender: 'bot' 
+        }
+      ]);
       
       // Clean up function
       return () => {
@@ -60,7 +90,7 @@ const ChatComponent: React.FC = () => {
         if (input.trim() === '') return;
         
         // Add user message to chat
-        const userMessage = { text: input, sender: 'self' as const };
+        const userMessage = { text: input === 'インプット' ? 'インプット' : input, sender: 'self' as const };
         setMessages(prev => [...prev, userMessage]);
         
         // Clear input field
@@ -69,64 +99,138 @@ const ChatComponent: React.FC = () => {
         // Process based on conversation state
         switch (conversationState) {
           case 'initial':
-            // First user message triggers AI thinking process
+            // First user message triggers business understanding
             setTimeout(() => {
-              // Add thinking process message
               setMessages(prev => [...prev, { 
-                text: '思考中... 営業支援エージェントか、商談推進エージェントか、技術相談エージェントか考えています。', 
+                text: 'エンドユーザからの問い合わせは、商談支援に関する内容と理解しました。この理解でよろしいでしょうか？', 
                 sender: 'bot',
-                type: 'thinking'
+                type: 'choice',
+                choices: ['はい', 'いいえ']
               }]);
               
-              setConversationState('thinking');
-              
-              // After thinking, suggest an agent
-              setTimeout(() => {
-                setMessages(prev => [...prev, { 
-                  text: '営業支援エージェントでよろしいですね？', 
-                  sender: 'bot',
-                  type: 'choice',
-                  choices: ['はい', 'いいえ']
-                }]);
-                
-                setSelectedAgent('sales_support');
-                setConversationState('agent_selection');
-                setAwaitingChoice(true);
-              }, 2000);
-            }, 1000);
+              setConversationState('business_understanding');
+              setAwaitingChoice(true);
+            }, 500);
             break;
             
-          case 'information_request':
-            // User has provided information request
+          case 'business_issue_inquiry':
+            // User has provided business issue information
             setTimeout(() => {
-              // Add thinking process for KGI dashboard query
+              // Update requirements summary with business issue
+              setRequirementsSummary(prev => ({
+                ...prev,
+                business_issue: '消費者の行動から購買の可能性のある消費者を検知し、的確に宣伝すること。',
+                business_issue_plan: '消費者行動の検知技術を活用した購買可能性の高い消費者の検知と宣伝の最適化を検討中。',
+                business_issue_status: '検討中',
+                business_issue_value: '購買可能性の高い消費者を的確に特定し、宣伝効果を最大化することで売上の向上を図ること。',
+                tech_usage_image: '消費者の行動をリアルタイムで分析し、購買可能性の高い消費者を特定してターゲティングする。'
+              }));
+              
+              // Ask about available data
               setMessages(prev => [...prev, { 
-                text: 'KGIダッシュボードに問い合わせています...', 
-                sender: 'bot',
-                type: 'thinking'
+                text: '消費者の行動から購買の可能性のある消費者を検知して的確に宣伝するための技術活用を検討されていますね。この目標を達成するためには、どのようなデータが利用可能かをお伺いしたいと思います。', 
+                sender: 'bot'
               }]);
               
-              // After "querying", provide response
-              setTimeout(() => {
-                setMessages(prev => [...prev, { 
-                  text: `KGIダッシュボードに問い合わせた結果、商談の返答としては以下の情報があります：\n\n${generateDashboardResponse(input)}`, 
-                  sender: 'bot'
-                }]);
-                
-                // Ask if user wants to consult with Tone-san
-                setTimeout(() => {
-                  setMessages(prev => [...prev, { 
-                    text: '利根さんに聞いてよろしいですか？', 
-                    sender: 'bot',
-                    type: 'choice',
-                    choices: ['はい', 'いいえ']
-                  }]);
-                  
-                  setConversationState('dashboard_response');
-                  setAwaitingChoice(true);
-                }, 1000);
-              }, 2000);
-            }, 1000);
+              setConversationState('data_inquiry');
+              setAwaitingChoice(false);
+            }, 500);
+            break;
+            
+          case 'data_inquiry':
+            // User has provided data information
+            setTimeout(() => {
+              // Update requirements summary with available data
+              setRequirementsSummary(prev => ({
+                ...prev,
+                available_data: 'モデルハウスに設置している定置カメラの映像データ'
+              }));
+              
+              // Ask about budget and schedule
+              setMessages(prev => [...prev, { 
+                text: 'プロジェクトの予算についてお伺いしてもよろしいでしょうか？また、導入スケジュールや特別な要件があれば教えてください。', 
+                sender: 'bot'
+              }]);
+              
+              setConversationState('budget_inquiry');
+              setAwaitingChoice(false);
+            }, 500);
+            break;
+            
+          case 'budget_inquiry':
+            // User has provided budget information
+            setTimeout(() => {
+              // Update requirements summary with budget info
+              setRequirementsSummary(prev => ({
+                ...prev,
+                budget: 'まだ具体的に組まれておらず、お試しをしながら効果を検証したい'
+              }));
+              
+              // Ask about special requirements
+              setMessages(prev => [...prev, { 
+                text: '予算についてはまだ具体的に組まれておらず、お試しをしながら効果を検証したいと考えているのですね。導入スケジュールや特別な要件についてもお伺いできますでしょうか？', 
+                sender: 'bot'
+              }]);
+              
+              setConversationState('requirements_inquiry');
+              setAwaitingChoice(false);
+            }, 500);
+            break;
+            
+          case 'requirements_inquiry':
+            // User has provided requirements information
+            setTimeout(() => {
+              // Update requirements summary with special requirements
+              setRequirementsSummary(prev => ({
+                ...prev,
+                requirements: '既設のカメラを利用できる必要がある'
+              }));
+              
+              // Ask about schedule
+              setMessages(prev => [...prev, { 
+                text: '特別な要件として、検討段階で既設のカメラを利用できる必要があるのですね。他に導入スケジュールについて明確な予定はありますでしょうか？', 
+                sender: 'bot'
+              }]);
+              
+              setConversationState('schedule_inquiry');
+              setAwaitingChoice(false);
+            }, 500);
+            break;
+            
+          case 'schedule_inquiry':
+            // User has provided schedule information
+            setTimeout(() => {
+              // Update requirements summary with schedule
+              setRequirementsSummary(prev => ({
+                ...prev,
+                introduction_schedule: '来年度4月から検討を開始'
+              }));
+              
+              // Present summary
+              const summaryText = generateRequirementsSummary();
+              
+              setMessages(prev => [...prev, { 
+                text: `プロジェクトの予算はまだ具体的に組まれておらず、まずはお試しをしながら効果を検証したいとのことです。導入スケジュールとしては、来年度4月から検討を開始したいと伺っています。特別な要件としては、既設のカメラを利用できる必要があります。他に必要な情報やご質問があればお知らせください。\n\n${summaryText}`, 
+                sender: 'bot'
+              }]);
+              
+              setConversationState('summary_presentation');
+              setAwaitingChoice(false);
+            }, 500);
+            break;
+            
+          case 'summary_presentation':
+            // After summary presentation, provide final recommendation
+            setTimeout(() => {
+              setMessages(prev => [...prev, { 
+                text: '商談支援については、既に提供された情報を基に専門家が具体的な提案を行う準備が整っています。次のステップとして、具体的なソリューション提案やテスト導入に関する詳細な打ち合わせを設定することが重要です。必要に応じて、専門家との会議をスケジュールし、プロジェクトを円滑に進めるための支援を受けることをお勧めします。', 
+                sender: 'bot'
+              }]);
+              
+              // Reset to initial state for next conversation
+              setConversationState('initial');
+              setAwaitingChoice(false);
+            }, 500);
             break;
             
           default:
@@ -143,13 +247,14 @@ const ChatComponent: React.FC = () => {
 
     // receive message ////api////
     const receiveMessage = () => {
-      // Implementation will be added later
+      // Implementation will be added later when connected to backend API
     };
 
     // View messages received  
     const viewMessage = () => {
-          setMessages([...messages, { text: 'Hellow!!', sender: 'bot' }]);
-          setInput('');   
+      // This is a placeholder function for testing
+      setMessages([...messages, { text: '承知しました。', sender: 'bot' }]);
+      setInput('');   
     };
     
     // Voice input functions
@@ -220,17 +325,28 @@ const ChatComponent: React.FC = () => {
       }
     };
     
-    // Helper function to generate mock dashboard responses based on user input
-    const generateDashboardResponse = (userQuery: string): string => {
+    // Helper function to generate requirements summary
+    const generateRequirementsSummary = (): string => {
+      const summary = requirementsSummary;
+      return `---\n<ここまでの要件サマリ>\n` +
+        Object.entries(summary)
+          .filter(([_, value]) => value) // Only include non-empty values
+          .map(([key, value]) => ` '${key}': '${value}'`)
+          .join(',\n') +
+        `\n---`;
+    };
+    
+    // Helper function to generate business consultation responses based on user input
+    const generateBusinessResponse = (userQuery: string): string => {
       // Simple keyword matching for demo purposes
-      if (userQuery.includes('売上') || userQuery.includes('収益')) {
-        return '- 今四半期の売上: 1,250万円\n- 前年同期比: +15%\n- 主要顧客の売上貢献度: A社 35%, B社 22%, C社 18%';
-      } else if (userQuery.includes('顧客') || userQuery.includes('クライアント')) {
-        return '- 新規顧客獲得数: 12社\n- 顧客満足度: 4.2/5.0\n- 主要顧客との次回ミーティング: A社 3/15, B社 3/22';
-      } else if (userQuery.includes('製品') || userQuery.includes('サービス')) {
-        return '- 主力製品の販売状況: 好調\n- 新製品のローンチ予定: 4月中旬\n- 製品改善要望トップ3: UI改善, 連携機能強化, モバイル対応';
+      if (userQuery.includes('予算') || userQuery.includes('コスト')) {
+        return '予算については、初期導入費用と運用コストを分けて考えることをお勧めします。初期費用には、システム構築費用、カメラ設置費用（既存カメラ利用の場合は不要）、ソフトウェアライセンス費用などが含まれます。運用コストには、クラウドサービス利用料、保守管理費、アップデート費用などが含まれます。';
+      } else if (userQuery.includes('導入') || userQuery.includes('スケジュール')) {
+        return '導入スケジュールとしては、一般的に以下のステップで進めることをお勧めします：\n1. 要件定義（1ヶ月）\n2. システム設計（1-2ヶ月）\n3. 開発・構築（2-3ヶ月）\n4. テスト運用（1ヶ月）\n5. 本番導入（1ヶ月）\n合計で約6-8ヶ月のスケジュールが一般的です。';
+      } else if (userQuery.includes('技術') || userQuery.includes('カメラ')) {
+        return '既存のカメラを活用する場合、カメラの仕様（解像度、フレームレート、設置位置など）によって検知精度が変わります。最低限、HD解像度（1280x720）以上、フレームレート15fps以上のカメラが望ましいです。また、人の動きを捉えやすい位置に設置されていることも重要です。';
       } else {
-        return '- 営業チームのKPI達成率: 87%\n- 今月の商談成約率: 35%\n- 重点フォロー案件: D社案件, E社提案, F社更新';
+        return '消費者行動の検知技術としては、画像認識AI、動線分析、滞留時間分析、表情分析などがあります。これらを組み合わせることで、購買意欲の高い消費者を特定し、適切なタイミングでアプローチすることが可能になります。';
       }
     };
     
@@ -255,78 +371,56 @@ const ChatComponent: React.FC = () => {
       // Process the choice based on current conversation state
       if (choice === 'はい') {
         switch (conversationState) {
-          case 'agent_selection':
-            // User confirmed agent selection
-            setTimeout(() => {
-              setConversationState('information_request');
-              setAwaitingChoice(false);
-              // Add agent's information request message
-              setMessages(prev => [...prev, { 
-                text: 'どういった情報が欲しいですか？', 
-                sender: 'bot' 
-              }]);
-            }, 500);
-            break;
-            
-          case 'dashboard_response':
-            // User confirmed to consult with Tone-san
+          case 'business_understanding':
+            // User confirmed business understanding
             setTimeout(() => {
               setAwaitingChoice(false);
-              // Add final response
+              // Ask about business issues
               setMessages(prev => [...prev, { 
-                text: '利根さんに問い合わせました。まもなく回答があります。', 
+                text: 'エンドユーザからの問い合わせは、商談支援に関する内容と理解しました。次に、業務課題について具体的にお伺いしてもよろしいでしょうか？どのような業務課題に直面されていますか？', 
                 sender: 'bot' 
               }]);
-              // Reset conversation state for next interaction
-              setConversationState('initial');
+              setConversationState('business_issue_inquiry');
             }, 500);
             break;
             
           default:
-            break;
-        }
-      } else if (choice === 'いいえ') {
-        // Handle "No" responses
-        switch (conversationState) {
-          case 'agent_selection':
-            // User rejected agent selection
-            setTimeout(() => {
-              setAwaitingChoice(false);
-              // Add thinking message for reconsidering agent
-              setMessages(prev => [...prev, { 
-                text: '別のエージェントを検討しています...', 
-                sender: 'bot',
-                type: 'thinking'
-              }]);
-              
-              // Simulate reconsideration and offer new agent
-              setTimeout(() => {
-                setMessages(prev => [...prev, { 
-                  text: '商談推進エージェントでよろしいですか？', 
-                  sender: 'bot',
-                  type: 'choice',
-                  choices: ['はい', 'いいえ']
-                }]);
-                setSelectedAgent('deal_promotion');
-                setAwaitingChoice(true);
-              }, 1500);
-            }, 500);
-            break;
-            
-          case 'dashboard_response':
-            // User rejected consulting with Tone-san
+            // For any other state with "yes" response
             setTimeout(() => {
               setAwaitingChoice(false);
               setMessages(prev => [...prev, { 
                 text: '承知しました。他に何かお手伝いできることはありますか？', 
                 sender: 'bot' 
               }]);
-              // Reset conversation state for next interaction
-              setConversationState('initial');
+            }, 500);
+            break;
+        }
+      } else if (choice === 'いいえ') {
+        // Handle "No" responses
+        switch (conversationState) {
+          case 'business_understanding':
+            // User rejected business understanding
+            setTimeout(() => {
+              setAwaitingChoice(false);
+              setMessages(prev => [...prev, { 
+                text: '申し訳ありません。どのような内容でのお問い合わせでしょうか？より適切なサポートをご提供するために、詳細をお聞かせください。', 
+                sender: 'bot' 
+              }]);
+              // Stay in the same state to try again
             }, 500);
             break;
             
           default:
+            // For any other state with "no" response
+            setTimeout(() => {
+              setAwaitingChoice(false);
+              setMessages(prev => [...prev, { 
+                text: '承知しました。他に何かお手伝いできることはありますか？', 
+                sender: 'bot' 
+              }]);
+              // Reset to initial state
+              setConversationState('initial');
+            }, 500);
             break;
         }
       }
@@ -380,7 +474,7 @@ const ChatComponent: React.FC = () => {
               <div className="button-container">
                 <button onClick={sendMessage} disabled={awaitingChoice}>Send</button>
                 <button onClick={toggleListening} className="voice-button" aria-label={isListening ? '音声入力停止' : '音声入力'}>
-                  <span className="voice-icon">{isListening ? '■' : '♪'}</span>
+                  <span className="voice-icon">{isListening ? '■' : '🎤'}</span>
                 </button>
               </div>
             </div>
