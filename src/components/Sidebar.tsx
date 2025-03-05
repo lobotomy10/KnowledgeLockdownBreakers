@@ -1,6 +1,6 @@
 import React from 'react';
 import './css/Sidebar.css';
-import { ReactFlow, MarkerType, Node as ReactFlowNode } from '@xyflow/react';
+import { ReactFlow, MarkerType, Node, Edge as ReactFlowEdge } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import CustomEdge from './edges/CustomEdge';
 
@@ -8,24 +8,13 @@ import CustomEdge from './edges/CustomEdge';
 const { useState, useEffect } = React;
 
 // Define types for ReactFlow nodes and edges
-interface NodeData {
+// Make NodeData extend Record<string, unknown> to satisfy ReactFlowNode constraint
+interface NodeData extends Record<string, unknown> {
   label: string;
 }
 
-// Using ReactFlowNode type instead of custom Node interface
-type Node = ReactFlowNode<NodeData>;
-
-interface Edge {
-  id: string;
-  source: string;
-  target: string;
-  // Add properties for edge styling
-  type?: string;       // 'default' | 'straight' | 'step' | 'smoothstep' | 'bezier'
-  animated?: boolean;  // For animated edges
-  style?: React.CSSProperties; // For custom styling
-  markerEnd?: string;  // For arrow markers
-  label?: string;      // For edge labels
-}
+// Use ReactFlowEdge type for edges
+type Edge = ReactFlowEdge;
 
 interface SidebarProps {
   items: string[];
@@ -174,7 +163,7 @@ const Sidebar: React.FC<SidebarProps> = ({ items, sidebar }) => {
                 <h2>Agent Status</h2>
                 <div style={{ width: '500px', height: '350px', backgroundColor:'#fff' }}>
                     <ReactFlow 
-                      nodes={initialNodes}
+                      nodes={initialNodes.map(node => ({ ...node, type: 'custom' }))}
                       edges={initialEdges}
                       nodeTypes={nodeTypes}
                       edgeTypes={edgeTypes}
@@ -183,7 +172,6 @@ const Sidebar: React.FC<SidebarProps> = ({ items, sidebar }) => {
                         type: 'custom',
                         markerEnd: 'arrow',
                       }}
-                      defaultNodeType="custom"
                     />
                 </div>
                 <div className="list-4">
