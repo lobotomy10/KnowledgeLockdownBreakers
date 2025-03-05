@@ -1,6 +1,6 @@
 import React from 'react';
 import './css/Sidebar.css';
-import { ReactFlow, MarkerType } from '@xyflow/react';
+import { ReactFlow, MarkerType, Node as ReactFlowNode } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import CustomEdge from './edges/CustomEdge';
 
@@ -12,12 +12,8 @@ interface NodeData {
   label: string;
 }
 
-interface Node {
-  id: string;
-  position: { x: number; y: number };
-  data: NodeData;
-  type?: string;
-}
+// Using ReactFlowNode type instead of custom Node interface
+type Node = ReactFlowNode<NodeData>;
 
 interface Edge {
   id: string;
