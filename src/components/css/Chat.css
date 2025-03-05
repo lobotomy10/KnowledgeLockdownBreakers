@@ -2,7 +2,7 @@
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 160px); /* Adjusted to account for header and title */
   max-width: 800px;
   margin: 0 auto;
   background-color: #f5f5f5;
@@ -120,4 +120,11 @@
 .tab.select {
   background-color: #4a86e8;
   color: white;
+}
+
+/* Chat component container */
+.chat-component {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
