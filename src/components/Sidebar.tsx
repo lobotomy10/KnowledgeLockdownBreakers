@@ -1,7 +1,8 @@
 import React from 'react';
 import './css/Sidebar.css';
-import { ReactFlow } from '@xyflow/react';
+import { ReactFlow, MarkerType } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import CustomEdge from './edges/CustomEdge';
 
 // Import useState and useEffect directly from the React object
 const { useState, useEffect } = React;
@@ -15,6 +16,7 @@ interface Node {
   id: string;
   position: { x: number; y: number };
   data: NodeData;
+  type?: string;
 }
 
 interface Edge {
@@ -102,22 +104,22 @@ const Sidebar: React.FC<SidebarProps> = ({ items, sidebar }) => {
       ];
     // Solid edges (normal arrows)
     const solidEdges: Edge[] = [
-      { id: 'e-start-user', source: 'start', target: 'user_interface', type: 'default', markerEnd: 'arrow' },
-      { id: 'e-search-summary', source: 'search_previous_opportunities', target: 'summary_current_opportunity', type: 'default', markerEnd: 'arrow' },
-      { id: 'e-summary-end', source: 'summary_current_opportunity', target: 'end', type: 'default', markerEnd: 'arrow' },
+      { id: 'e-start-user', source: 'start', target: 'user_interface', type: 'custom', markerEnd: 'arrow' },
+      { id: 'e-search-summary', source: 'search_previous_opportunities', target: 'summary_current_opportunity', type: 'custom', markerEnd: 'arrow' },
+      { id: 'e-summary-end', source: 'summary_current_opportunity', target: 'end', type: 'custom', markerEnd: 'arrow' },
     ];
 
     // Dotted edges (dotted arrows)
     const dottedEdges: Edge[] = [
-      { id: 'e-user-predict', source: 'user_interface', target: 'predict_category', type: 'default', style: { strokeDasharray: '5, 5' }, markerEnd: 'arrow' },
-      { id: 'e-user-clarify', source: 'user_interface', target: 'clarify_requirements', type: 'default', style: { strokeDasharray: '5, 5' }, markerEnd: 'arrow' },
-      { id: 'e-user-summary', source: 'user_interface', target: 'summary_customer_requirements', type: 'default', style: { strokeDasharray: '5, 5' }, markerEnd: 'arrow' },
-      { id: 'e-predict-clarify', source: 'predict_category', target: 'clarify_requirements', type: 'default', style: { strokeDasharray: '5, 5' }, markerEnd: 'arrow' },
-      { id: 'e-predict-user', source: 'predict_category', target: 'user_interface', type: 'default', style: { strokeDasharray: '5, 5' }, markerEnd: 'arrow' },
-      { id: 'e-clarify-summary', source: 'clarify_requirements', target: 'summary_customer_requirements', type: 'default', style: { strokeDasharray: '5, 5' }, markerEnd: 'arrow' },
-      { id: 'e-clarify-user', source: 'clarify_requirements', target: 'user_interface', type: 'default', style: { strokeDasharray: '5, 5' }, markerEnd: 'arrow' },
-      { id: 'e-summary-search', source: 'summary_customer_requirements', target: 'search_previous_opportunities', type: 'default', style: { strokeDasharray: '5, 5' }, markerEnd: 'arrow' },
-      { id: 'e-summary-user', source: 'summary_customer_requirements', target: 'user_interface', type: 'default', style: { strokeDasharray: '5, 5' }, markerEnd: 'arrow' },
+      { id: 'e-user-predict', source: 'user_interface', target: 'predict_category', type: 'custom', style: { strokeDasharray: '5, 5' }, markerEnd: 'arrow' },
+      { id: 'e-user-clarify', source: 'user_interface', target: 'clarify_requirements', type: 'custom', style: { strokeDasharray: '5, 5' }, markerEnd: 'arrow' },
+      { id: 'e-user-summary', source: 'user_interface', target: 'summary_customer_requirements', type: 'custom', style: { strokeDasharray: '5, 5' }, markerEnd: 'arrow' },
+      { id: 'e-predict-clarify', source: 'predict_category', target: 'clarify_requirements', type: 'custom', style: { strokeDasharray: '5, 5' }, markerEnd: 'arrow' },
+      { id: 'e-predict-user', source: 'predict_category', target: 'user_interface', type: 'custom', style: { strokeDasharray: '5, 5' }, markerEnd: 'arrow' },
+      { id: 'e-clarify-summary', source: 'clarify_requirements', target: 'summary_customer_requirements', type: 'custom', style: { strokeDasharray: '5, 5' }, markerEnd: 'arrow' },
+      { id: 'e-clarify-user', source: 'clarify_requirements', target: 'user_interface', type: 'custom', style: { strokeDasharray: '5, 5' }, markerEnd: 'arrow' },
+      { id: 'e-summary-search', source: 'summary_customer_requirements', target: 'search_previous_opportunities', type: 'custom', style: { strokeDasharray: '5, 5' }, markerEnd: 'arrow' },
+      { id: 'e-summary-user', source: 'summary_customer_requirements', target: 'user_interface', type: 'custom', style: { strokeDasharray: '5, 5' }, markerEnd: 'arrow' },
     ];
 
     // Combine all edges
@@ -144,6 +146,11 @@ const Sidebar: React.FC<SidebarProps> = ({ items, sidebar }) => {
           {data.label}
         </div>
       ),
+    };
+    
+    // カスタムエッジタイプの定義
+    const edgeTypes = {
+      custom: CustomEdge,
     };
 
     return (
@@ -174,9 +181,10 @@ const Sidebar: React.FC<SidebarProps> = ({ items, sidebar }) => {
                       nodes={initialNodes.map(node => ({ ...node, type: 'custom' }))}
                       edges={initialEdges}
                       nodeTypes={nodeTypes}
+                      edgeTypes={edgeTypes}
                       fitView
                       defaultEdgeOptions={{ 
-                        type: 'default',
+                        type: 'custom',
                         markerEnd: 'arrow',
                       }}
                     />
