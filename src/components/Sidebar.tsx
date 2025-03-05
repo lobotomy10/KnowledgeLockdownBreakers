@@ -178,7 +178,7 @@ const Sidebar: React.FC<SidebarProps> = ({ items, sidebar }) => {
                 <h2>Agent Status</h2>
                 <div style={{ width: '500px', height: '350px', backgroundColor:'#fff' }}>
                     <ReactFlow 
-                      nodes={initialNodes.map(node => ({ ...node, type: 'custom' }))}
+                      nodes={initialNodes}
                       edges={initialEdges}
                       nodeTypes={nodeTypes}
                       edgeTypes={edgeTypes}
@@ -187,6 +187,7 @@ const Sidebar: React.FC<SidebarProps> = ({ items, sidebar }) => {
                         type: 'custom',
                         markerEnd: 'arrow',
                       }}
+                      defaultNodeType="custom"
                     />
                 </div>
                 <div className="list-4">
