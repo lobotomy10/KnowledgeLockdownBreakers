@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import * as React from 'react';
+import { useState, useEffect } from 'react';
 import '../css/Chat.css';
 import '../css/Sidebar.css';
 import Sidebar from '../../components/Sidebar';
@@ -15,14 +16,14 @@ const Responder: React.FC = () => {
   // menuItem ////api////
   const getMyHistory = () => {
     // Implementation would go here
-  }
+  };
 
   const menuItems = ['商談推進', '技術検証', '営業支援', 'その他'];
   const leftSidebar = true;
   const rightSidebar = false;
 
   // Chat component for the responder view
-  const ResponderChat = () => {
+  const ResponderChat: React.FC = () => {
     return (
       <div className="chat-container">
         <div className="chat-header">
