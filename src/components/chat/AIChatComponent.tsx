@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardContent } from '../../components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import '../css/Chat.css';
 
@@ -123,7 +123,10 @@ const AIChatComponent: React.FC = () => {
   };
 
   return (
-    <Card className="chat-container h-full flex flex-col w-full border rounded-md shadow-sm">
+    <Card className="chat-container h-full flex flex-col w-full border-2 rounded-md shadow-lg bg-white">
+      <CardHeader className="bg-primary text-primary-foreground py-2">
+        <CardTitle className="text-center">チャット</CardTitle>
+      </CardHeader>
       <CardContent className="flex-1 overflow-auto p-4 flex flex-col">
         {/* メッセージ履歴 */}
         <div className="chat-messages space-y-4 flex flex-col w-full">
@@ -132,15 +135,16 @@ const AIChatComponent: React.FC = () => {
               key={message.id} 
               className={`message ${message.sender === 'user' ? 'user-message' : 'ai-message'} p-3 rounded-lg ${
                 message.sender === 'user' 
-                  ? 'bg-blue-500 text-white' 
-                  : 'bg-gray-100 text-gray-800'
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'bg-muted text-muted-foreground'
               }`}
               style={{ 
                 maxWidth: '80%', 
                 alignSelf: message.sender === 'user' ? 'flex-end' : 'flex-start',
                 display: 'block',
                 marginLeft: message.sender === 'user' ? 'auto' : '0',
-                marginRight: message.sender === 'user' ? '0' : 'auto'
+                marginRight: message.sender === 'user' ? '0' : 'auto',
+                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
               }}
             >
               <div className="message-content">
@@ -174,7 +178,7 @@ const AIChatComponent: React.FC = () => {
       </CardContent>
       
       {/* メッセージ入力エリア */}
-      <div className="chat-input p-4 border-t w-full">
+      <div className="chat-input p-4 border-t w-full bg-muted/10">
         <div className="flex w-full">
           <textarea 
             value={inputMessage}
@@ -182,12 +186,12 @@ const AIChatComponent: React.FC = () => {
             onKeyPress={handleKeyPress}
             placeholder="メッセージを入力してください..."
             rows={2}
-            className="flex-1 border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className="flex-1 border-2 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary resize-none shadow-sm"
           />
           <Button 
             onClick={handleSendMessage}
             disabled={!inputMessage.trim() || isAIResponding}
-            className="ml-2 self-end"
+            className="ml-2 self-end bg-primary hover:bg-primary/90"
           >
             送信
           </Button>
