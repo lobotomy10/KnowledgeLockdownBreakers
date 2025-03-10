@@ -1,8 +1,28 @@
 import { useState } from 'react'
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Plus, Heart, X, Coins } from "lucide-react"
 import CreateCard from './CreateCard'
+import ChatComponent from './components/chat/ChatComponent'
+import TestNewChat from './TestNewChat'
+
+// Define temporary components to fix build errors
+const Card = ({ children, className }: { children: React.ReactNode, className?: string }) => (
+  <div className={className}>{children}</div>
+);
+
+const Button = ({ children, variant, size, className, onClick }: { 
+  children: React.ReactNode, 
+  variant?: string, 
+  size?: string, 
+  className?: string, 
+  onClick?: () => void 
+}) => (
+  <button className={className} onClick={onClick}>{children}</button>
+);
+
+// Define temporary icons
+const Plus = ({ className }: { className?: string }) => <span className={className}>+</span>;
+const Heart = ({ className }: { className?: string }) => <span className={className}>❤️</span>;
+const X = ({ className }: { className?: string }) => <span className={className}>✕</span>;
+const Coins = ({ className }: { className?: string }) => <span className={className}>🪙</span>;
 
 interface KnowledgeCard {
   id: string;
@@ -16,6 +36,7 @@ function App() {
   const [tokens, setTokens] = useState(15)
   const [currentCardIndex, setCurrentCardIndex] = useState(0)
   const [showCreateCard, setShowCreateCard] = useState(false)
+  const [showNewUI, setShowNewUI] = useState(true)
   
   // Mock data - in production this would come from API
   const cards: KnowledgeCard[] = [
@@ -45,18 +66,53 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white/95 backdrop-blur-sm shadow-sm p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">CardNote</h1>
-        <div className="flex items-center gap-2">
-          <Coins className="text-yellow-500" />
-          <span className="font-semibold">{tokens}</span>
-          {/* Token change indicator */}
-          <span className="text-sm text-gray-500">
-            (Correct: -2)
-          </span>
-        </div>
-      </header>
+      {showNewUI ? (
+        <>
+          <div style={{ position: 'fixed', top: '10px', right: '10px', zIndex: 1000 }}>
+            <button 
+              onClick={() => setShowNewUI(!showNewUI)}
+              style={{ 
+                padding: '8px 16px', 
+                backgroundColor: '#4a5568', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              従来のUIに切り替え
+            </button>
+          </div>
+          <TestNewChat />
+        </>
+      ) : (
+        <>
+          {/* Header */}
+          <header className="bg-white/95 backdrop-blur-sm shadow-sm p-4 flex justify-between items-center">
+            <h1 className="text-xl font-bold">CardNote</h1>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => setShowNewUI(!showNewUI)}
+                style={{ 
+                  padding: '8px 16px', 
+                  backgroundColor: '#4a5568', 
+                  color: 'white', 
+                  border: 'none', 
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  marginRight: '10px'
+                }}
+              >
+                新しいUIに切り替え
+              </button>
+              <Coins className="text-yellow-500" />
+              <span className="font-semibold">{tokens}</span>
+              {/* Token change indicator */}
+              <span className="text-sm text-gray-500">
+                (Correct: -2)
+              </span>
+            </div>
+          </header>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
@@ -125,6 +181,8 @@ function App() {
           )}
         </div>
       </main>
+    </>
+      )}
     </div>
   )
 }
