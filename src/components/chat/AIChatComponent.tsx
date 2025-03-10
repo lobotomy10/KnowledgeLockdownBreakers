@@ -123,23 +123,24 @@ const AIChatComponent: React.FC = () => {
   };
 
   return (
-    <Card className="chat-container h-full flex flex-col">
-      <CardContent className="flex-1 overflow-auto p-4">
+    <Card className="chat-container h-full flex flex-col w-full border rounded-md shadow-sm">
+      <CardContent className="flex-1 overflow-auto p-4 flex flex-col">
         {/* メッセージ履歴 */}
-        <div className="chat-messages space-y-4">
+        <div className="chat-messages space-y-4 flex flex-col w-full">
           {messages.map((message) => (
             <div 
               key={message.id} 
               className={`message ${message.sender === 'user' ? 'user-message' : 'ai-message'} p-3 rounded-lg ${
                 message.sender === 'user' 
-                  ? 'bg-blue-500 text-white ml-auto' 
+                  ? 'bg-blue-500 text-white' 
                   : 'bg-gray-100 text-gray-800'
               }`}
               style={{ 
                 maxWidth: '80%', 
                 alignSelf: message.sender === 'user' ? 'flex-end' : 'flex-start',
-                display: 'inline-block',
-                marginLeft: message.sender === 'user' ? 'auto' : '0'
+                display: 'block',
+                marginLeft: message.sender === 'user' ? 'auto' : '0',
+                marginRight: message.sender === 'user' ? '0' : 'auto'
               }}
             >
               <div className="message-content">
@@ -173,8 +174,8 @@ const AIChatComponent: React.FC = () => {
       </CardContent>
       
       {/* メッセージ入力エリア */}
-      <div className="chat-input p-4 border-t">
-        <div className="flex">
+      <div className="chat-input p-4 border-t w-full">
+        <div className="flex w-full">
           <textarea 
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}

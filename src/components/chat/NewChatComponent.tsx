@@ -25,7 +25,7 @@ const NewChatComponent: React.FC = () => {
         <div className="flex-1 overflow-auto">
           <div className="p-6 h-full flex flex-col">
             <Header title="エージェント" subtitle="コミュニケーション" />
-            <div className="mt-6 flex-1">
+            <div className="mt-6 flex-1 flex w-full">
               <AIChatComponent />
             </div>
           </div>
