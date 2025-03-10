@@ -3,7 +3,7 @@ import '../css/Chat.css';
 import { SidebarProvider } from '../../components/ui/sidebar';
 import NewSidebar from '../NewSidebar';
 import Header from '../Header';
-import NewResponder from './NewResponder';
+import AIChatComponent from './AIChatComponent';
 
 const NewChatComponent: React.FC = () => {
   // menuItem ////api////
@@ -23,10 +23,10 @@ const NewChatComponent: React.FC = () => {
         
         {/* Main Content */}
         <div className="flex-1 overflow-auto">
-          <div className="p-6">
+          <div className="p-6 h-full flex flex-col">
             <Header title="エージェント" subtitle="コミュニケーション" />
-            <div className="mt-6">
-              <NewResponder />
+            <div className="mt-6 flex-1">
+              <AIChatComponent />
             </div>
           </div>
         </div>
