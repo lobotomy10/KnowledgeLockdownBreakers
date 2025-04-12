@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>リアルタイム音声処理システム</title>
+    <style>
+        body {
+            font-family: 'Hiragino Kaku Gothic Pro', 'Meiryo', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        .control-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .recording-status {
+            display: flex;
+            align-items: center;
+        }
+        .recording-indicator {
+            display: flex;
+            align-items: center;
+        }
+        .recording-dot {
+            width: 12px;
+            height: 12px;
+            background-color: #ff4136;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .start-button {
+            background-color: #2ecc40;
+            color: white;
+        }
+        .start-button:hover {
+            background-color: #27ae60;
+        }
+        .stop-button {
+            background-color: #ff4136;
+            color: white;
+        }
+        .stop-button:hover {
+            background-color: #e74c3c;
+        }
+        .error-message {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .results-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .transcripts-container, .keywords-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .transcripts-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .transcript-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        .transcript-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .transcript-text {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        .keywords-list, .current-keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .keyword-tag {
+            background-color: #e1f5fe;
+            color: #0288d1;
+            padding: 5px 10px;
+            border-radius: 16px;
+            font-size: 0.9em;
+        }
+        .keyword-input {
+            margin-top: 20px;
+        }
+        .keyword-input input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 1em;
+        }
+        .no-data-message {
+            color: #999;
+            font-style: italic;
+        }
+        @media (max-width: 768px) {
+            .results-container {
+                grid-template-columns: 1fr;
+            }
+            .control-panel {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+        .prompt-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+        .prompt-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 1em;
+            min-height: 80px;
+            resize: vertical;
+        }
+        .prompt-button {
+            background-color: #3498db;
+            color: white;
+            margin-top: 10px;
+        }
+        .prompt-button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <h1>リアルタイム音声処理システム</h1>
+    
+    <div class="control-panel">
+        <div class="recording-status">
+            <div id="recording-indicator" class="recording-indicator" style="display: none;">
+                <div class="recording-dot"></div>
+                <span>録音中...</span>
+            </div>
+            <div id="not-recording-indicator">
+                <span>録音停止中</span>
+            </div>
+        </div>
+        <div class="control-buttons">
+            <button id="start-button" class="start-button">録音開始</button>
+            <button id="stop-button" class="stop-button" style="display: none;">録音停止</button>
+        </div>
+    </div>
+    
+    <div id="error-message" class="error-message" style="display: none;">
+        <span id="error-text"></span>
+        <button id="dismiss-error">×</button>
+    </div>
+    
+    <div class="prompt-container">
+        <h3>キーワード抽出プロンプト</h3>
+        <p>AIがどのようなキーワードを抽出するか指定できます</p>
+        <textarea id="prompt-input" class="prompt-input" placeholder="例: 重要なキーワードを抽出する">重要なキーワードを抽出する</textarea>
+        <button id="update-prompt" class="prompt-button">プロンプト更新</button>
+    </div>
+    
+    <div class="results-container">
+        <div class="transcripts-container">
+            <h2>文字起こし結果</h2>
+            <div id="transcripts-list" class="transcripts-list">
+                <p class="no-data-message">録音を開始すると、ここに文字起こし結果が表示されます。</p>
+            </div>
+        </div>
+        
+        <div class="keywords-container">
+            <h2>抽出キーワード</h2>
+            <div id="keywords-list" class="keywords-list">
+                <p class="no-data-message">録音を開始すると、ここにキーワードが表示されます。</p>
+            </div>
+            
+            <div class="keyword-input">
+                <h3>入力フィールド</h3>
+                <p>抽出されたキーワードが自動的に入力されます</p>
+                <input type="text" id="keyword-input-field" placeholder="キーワードが自動入力されます">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+        let socket;
+        let recordingInterval;
+        let currentPrompt = "重要なキーワードを抽出する";
+        
+        // DOM Elements
+        const startButton = document.getElementById('start-button');
+        const stopButton = document.getElementById('stop-button');
+        const recordingIndicator = document.getElementById('recording-indicator');
+        const notRecordingIndicator = document.getElementById('not-recording-indicator');
+        const errorMessage = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+        const dismissError = document.getElementById('dismiss-error');
+        const transcriptsList = document.getElementById('transcripts-list');
+        const keywordsList = document.getElementById('keywords-list');
+        const keywordInputField = document.getElementById('keyword-input-field');
+        const promptInput = document.getElementById('prompt-input');
+        const updatePromptButton = document.getElementById('update-prompt');
+        
+        // Event Listeners
+        startButton.addEventListener('click', startRecording);
+        stopButton.addEventListener('click', stopRecording);
+        dismissError.addEventListener('click', () => {
+            errorMessage.style.display = 'none';
+        });
+        updatePromptButton.addEventListener('click', updatePrompt);
+        
+        // Functions
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                
+                mediaRecorder.addEventListener('dataavailable', event => {
+                    audioChunks.push(event.data);
+                });
+                
+                mediaRecorder.addEventListener('stop', () => {
+                    if (isRecording) {
+                        sendAudioData();
+                    }
+                });
+                
+                // Connect to WebSocket
+                connectWebSocket();
+                
+                // Start recording
+                mediaRecorder.start();
+                isRecording = true;
+                
+                // Update UI
+                startButton.style.display = 'none';
+                stopButton.style.display = 'block';
+                recordingIndicator.style.display = 'flex';
+                notRecordingIndicator.style.display = 'none';
+                
+                // Set interval to stop and restart recording every 30 seconds
+                recordingInterval = setInterval(() => {
+                    if (isRecording && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                        setTimeout(() => {
+                            if (isRecording) {
+                                mediaRecorder.start();
+                            }
+                        }, 500);
+                    }
+                }, 30000);
+                
+                // Clear previous results
+                transcriptsList.innerHTML = '';
+                keywordsList.innerHTML = '';
+                
+            } catch (error) {
+                showError(`マイクへのアクセスエラー: ${error.message}`);
+            }
+        }
+        
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+            }
+            
+            isRecording = false;
+            clearInterval(recordingInterval);
+            
+            // Close WebSocket connection
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.close();
+            }
+            
+            // Update UI
+            startButton.style.display = 'block';
+            stopButton.style.display = 'none';
+            recordingIndicator.style.display = 'none';
+            notRecordingIndicator.style.display = 'block';
+        }
+        
+        function connectWebSocket() {
+            // Get the current host
+            const host = window.location.host;
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            
+            // Create WebSocket connection
+            socket = new WebSocket(`${protocol}//${host}/ws/audio`);
+            
+            socket.onopen = () => {
+                console.log('WebSocket connection established');
+            };
+            
+            socket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                
+                if (data.type === 'transcript') {
+                    displayTranscript(data);
+                    displayKeywords(data.keywords);
+                } else if (data.type === 'error') {
+                    showError(`処理エラー: ${data.message}`);
+                }
+            };
+            
+            socket.onerror = (error) => {
+                showError(`WebSocketエラー: ${error.message || '接続エラー'}`);
+                stopRecording();
+            };
+            
+            socket.onclose = () => {
+                console.log('WebSocket connection closed');
+            };
+        }
+        
+        async function sendAudioData() {
+            if (socket && socket.readyState === WebSocket.OPEN && audioChunks.length > 0) {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                audioChunks = [];
+                
+                try {
+                    const arrayBuffer = await audioBlob.arrayBuffer();
+                    socket.send(arrayBuffer);
+                } catch (error) {
+                    showError(`音声データ送信エラー: ${error.message}`);
+                }
+            }
+        }
+        
+        function displayTranscript(data) {
+            const transcriptItem = document.createElement('div');
+            transcriptItem.className = 'transcript-item';
+            
+            const startTime = new Date(data.start_time * 1000).toLocaleTimeString();
+            const endTime = new Date(data.end_time * 1000).toLocaleTimeString();
+            
+            transcriptItem.innerHTML = `
+                <div class="transcript-header">
+                    <span>セグメント ID: ${data.segment_id.substring(0, 8)}...</span>
+                    <span>${startTime} - ${endTime}</span>
+                </div>
+                <div class="transcript-text">${data.transcript}</div>
+                <div class="keywords">
+                    ${data.keywords.map(keyword => `<span class="keyword-tag">${keyword}</span>`).join('')}
+                </div>
+            `;
+            
+            transcriptsList.appendChild(transcriptItem);
+            transcriptsList.scrollTop = transcriptsList.scrollHeight;
+        }
+        
+        function displayKeywords(keywords) {
+            keywordsList.innerHTML = '';
+            
+            if (keywords.length === 0) {
+                keywordsList.innerHTML = '<p class="no-data-message">キーワードが見つかりませんでした。</p>';
+                return;
+            }
+            
+            keywords.forEach(keyword => {
+                const keywordTag = document.createElement('span');
+                keywordTag.className = 'keyword-tag';
+                keywordTag.textContent = keyword;
+                keywordsList.appendChild(keywordTag);
+            });
+            
+            // Update input field with keywords
+            keywordInputField.value = keywords.join(', ');
+        }
+        
+        async function updatePrompt() {
+            const newPrompt = promptInput.value.trim();
+            
+            if (!newPrompt) {
+                showError('プロンプトを入力してください');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/audio/prompt', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ prompt: newPrompt })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    currentPrompt = data.prompt;
+                    showError(`プロンプトを更新しました: ${currentPrompt}`, 'success');
+                } else {
+                    const error = await response.json();
+                    showError(`プロンプト更新エラー: ${error.detail || '不明なエラー'}`);
+                }
+            } catch (error) {
+                showError(`プロンプト更新エラー: ${error.message}`);
+            }
+        }
+        
+        function showError(message, type = 'error') {
+            errorText.textContent = message;
+            errorMessage.style.display = 'flex';
+            
+            if (type === 'success') {
+                errorMessage.style.backgroundColor = '#e8f5e9';
+                errorMessage.style.color = '#2e7d32';
+            } else {
+                errorMessage.style.backgroundColor = '#ffebee';
+                errorMessage.style.color = '#c62828';
+            }
+            
+            // Auto-hide success messages after 3 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 3000);
+            }
+        }
+    </script>
+</body>
+</html>

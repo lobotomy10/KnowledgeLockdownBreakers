@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends, File, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 import openai
@@ -15,9 +15,9 @@ from web3 import Web3
 from eth_account import Account
 from eth_utils import to_checksum_address
 import json
-from redis import asyncio as aioredis
-from fastapi_limiter import FastAPILimiter
-from fastapi_limiter.depends import RateLimiter
+# from redis import asyncio as aioredis
+# from fastapi_limiter import FastAPILimiter
+# from fastapi_limiter.depends import RateLimiter
 import asyncio
 
 load_dotenv()
@@ -27,17 +27,23 @@ app = FastAPI(title="CardNote API")
 # Configure OpenAI
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# Configure Redis and rate limiting
 @app.on_event("startup")
 async def startup():
-    redis = await aioredis.from_url("redis://localhost", encoding="utf-8", decode_responses=True)
-    await FastAPILimiter.init(redis)
+    # redis = await aioredis.from_url("redis://localhost", encoding="utf-8", decode_responses=True)
+    # await FastAPILimiter.init(redis)
+    pass
 
 # Create uploads directory if it doesn't exist
 os.makedirs("uploads", exist_ok=True)
 
+os.makedirs("static", exist_ok=True)
+
 # Mount static files directory
 app.mount("/static", StaticFiles(directory="uploads"), name="static")
+
+@app.get("/")
+async def get_index():
+    return FileResponse("static/index.html")
 
 # Enable CORS
 app.add_middleware(
@@ -110,8 +116,7 @@ class KeywordExtractionPrompt(BaseModel):
 
 @app.post("/chat")
 async def chat_stream(
-    request: StreamRequest,
-    rate_limit: bool = Depends(RateLimiter(times=10, seconds=60))
+    request: StreamRequest
 ):
     try:
         # Add persona context to the messages
