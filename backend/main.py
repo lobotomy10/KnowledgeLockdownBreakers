@@ -1,13 +1,15 @@
-from fastapi import FastAPI, HTTPException, Depends, File, UploadFile
+from fastapi import FastAPI, HTTPException, Depends, File, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 import openai
 from dotenv import load_dotenv
 import uuid
 import os
+import base64
+import tempfile
 from datetime import datetime
 from web3 import Web3
 from eth_account import Account
@@ -16,6 +18,7 @@ import json
 from redis import asyncio as aioredis
 from fastapi_limiter import FastAPILimiter
 from fastapi_limiter.depends import RateLimiter
+import asyncio
 
 load_dotenv()
 
@@ -94,6 +97,16 @@ class Message(BaseModel):
 class StreamRequest(BaseModel):
     messages: List[Message]
     persona: str
+    
+class AudioSegmentResult(BaseModel):
+    segment_id: str
+    start_time: int  # in seconds
+    end_time: int  # in seconds
+    transcript: str
+    keywords: List[str]
+    
+class KeywordExtractionPrompt(BaseModel):
+    prompt: str = "重要なキーワードを抽出する"
 
 @app.post("/chat")
 async def chat_stream(
@@ -295,6 +308,102 @@ async def mint_nft(request: NFTMintRequest):
             status_code=500,
             detail=f"Failed to mint NFT: {str(e)}"
         )
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
+        self.extraction_prompt: str = "重要なキーワードを抽出する"
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+        
+    def update_extraction_prompt(self, prompt: str):
+        self.extraction_prompt = prompt
+
+manager = ConnectionManager()
+
+@app.websocket("/ws/audio")
+async def websocket_audio_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            audio_data = await websocket.receive_bytes()
+            
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as temp_audio_file:
+                temp_audio_file.write(audio_data)
+                temp_audio_file.flush()
+                
+                transcript = await transcribe_audio(temp_audio_file.name)
+                
+                keywords = await extract_keywords(transcript, manager.extraction_prompt)
+                
+                segment_id = str(uuid.uuid4())
+                current_time = int(datetime.now().timestamp())
+                
+                result = {
+                    "type": "transcript",
+                    "segment_id": segment_id,
+                    "start_time": current_time - 30,  # Assuming 30-second segments
+                    "end_time": current_time,
+                    "transcript": transcript,
+                    "keywords": keywords
+                }
+                
+                await websocket.send_json(result)
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+    except Exception as e:
+        print(f"Error processing audio: {str(e)}")
+        try:
+            await websocket.send_json({"type": "error", "message": str(e)})
+        except:
+            pass
+        manager.disconnect(websocket)
+
+@app.post("/api/audio/prompt")
+async def update_extraction_prompt(prompt_data: KeywordExtractionPrompt):
+    """Update the prompt used for keyword extraction."""
+    manager.update_extraction_prompt(prompt_data.prompt)
+    return {"message": "Prompt updated successfully", "prompt": prompt_data.prompt}
+
+async def transcribe_audio(audio_file_path: str) -> str:
+    """Transcribe audio file using OpenAI's Whisper API."""
+    try:
+        with open(audio_file_path, "rb") as audio_file:
+            transcript = await openai.audio.transcriptions.create(
+                file=audio_file,
+                model="whisper-1"
+            )
+        return transcript.text
+    except Exception as e:
+        print(f"Error transcribing audio: {str(e)}")
+        return ""
+
+async def extract_keywords(text: str, prompt: str = "重要なキーワードを抽出する") -> List[str]:
+    """Extract keywords from text using OpenAI API based on the provided prompt."""
+    if not text:
+        return []
+        
+    try:
+        response = await openai.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": f"あなたは与えられたテキストから{prompt}アシスタントです。テキストを分析し、最も重要な5-10個のキーワードをリストとして返してください。"},
+                {"role": "user", "content": f"以下のテキストから{prompt}。キーワードのみをカンマ区切りのリストで返してください。\n\n{text}"}
+            ],
+            temperature=0.3,
+            max_tokens=100
+        )
+        keywords_text = response.choices[0].message.content
+        keywords = [keyword.strip() for keyword in keywords_text.split(',')]
+        return keywords
+    except Exception as e:
+        print(f"Error extracting keywords: {str(e)}")
+        return []
 
 if __name__ == "__main__":
     import uvicorn

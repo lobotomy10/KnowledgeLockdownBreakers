@@ -1,0 +1,214 @@
+.realtime-audio-processor {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Hiragino Kaku Gothic Pro', 'Meiryo', sans-serif;
+}
+
+h1, h2, h3 {
+  color: #333;
+}
+
+.control-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.recording-status {
+  display: flex;
+  align-items: center;
+}
+
+.recording-indicator {
+  display: flex;
+  align-items: center;
+}
+
+.recording-dot {
+  width: 12px;
+  height: 12px;
+  background-color: #ff4136;
+  border-radius: 50%;
+  margin-right: 8px;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.control-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.start-button {
+  background-color: #2ecc40;
+  color: white;
+}
+
+.start-button:hover {
+  background-color: #27ae60;
+}
+
+.stop-button {
+  background-color: #ff4136;
+  color: white;
+}
+
+.stop-button:hover {
+  background-color: #e74c3c;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 10px 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-message button {
+  background-color: transparent;
+  color: #c62828;
+  padding: 5px 10px;
+}
+
+.results-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.transcripts-container, .keywords-container {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.transcripts-list {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.transcript-item {
+  margin-bottom: 15px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border-left: 4px solid #3498db;
+}
+
+.transcript-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  color: #666;
+  font-size: 0.9em;
+}
+
+.transcript-text {
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.keywords-list, .current-keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.keyword-tag {
+  background-color: #e1f5fe;
+  color: #0288d1;
+  padding: 5px 10px;
+  border-radius: 16px;
+  font-size: 0.9em;
+}
+
+.keyword-input {
+  margin-top: 20px;
+}
+
+.keyword-input input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-top: 10px;
+  font-size: 1em;
+}
+
+.no-data-message {
+  color: #999;
+  font-style: italic;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .results-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .control-panel {
+    flex-direction: column;
+    gap: 15px;
+  }
+}
+
+/* Prompt input styles */
+.prompt-container {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+.prompt-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-top: 10px;
+  font-size: 1em;
+  min-height: 80px;
+  resize: vertical;
+}
+
+.prompt-button {
+  background-color: #3498db;
+  color: white;
+  margin-top: 10px;
+}
+
+.prompt-button:hover {
+  background-color: #2980b9;
+}

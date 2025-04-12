@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus, Heart, X, Coins } from "lucide-react"
 import CreateCard from './CreateCard'
+import RealtimeAudioProcessor from './components/RealtimeAudioProcessor'
 
 interface KnowledgeCard {
   id: string;
@@ -125,6 +126,11 @@ function App() {
           )}
         </div>
       </main>
+      
+      {/* Audio Processor */}
+      <div className="fixed top-0 left-0 w-full h-full bg-white/95 backdrop-blur-sm z-50 overflow-auto">
+        <RealtimeAudioProcessor />
+      </div>
     </div>
   )
 }
