@@ -18,6 +18,9 @@ python-multipart = "^0.0.9"
 python-jose = "^3.3.0"
 passlib = "^1.7.4"
 web3 = "^6.15.1"
+pydub = "^0.25.1"
+librosa = "^0.11.0"
+ffmpeg-python = "^0.2.0"
 
 [build-system]
 requires = ["poetry-core"]

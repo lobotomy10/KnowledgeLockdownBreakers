@@ -1,13 +1,15 @@
-from fastapi import FastAPI, HTTPException, Depends, File, UploadFile
+from fastapi import FastAPI, HTTPException, Depends, File, UploadFile, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 import openai
 from dotenv import load_dotenv
 import uuid
 import os
+import tempfile
+import shutil
 from datetime import datetime
 from web3 import Web3
 from eth_account import Account
@@ -16,6 +18,8 @@ import json
 from redis import asyncio as aioredis
 from fastapi_limiter import FastAPILimiter
 from fastapi_limiter.depends import RateLimiter
+from pydub import AudioSegment
+import math
 
 load_dotenv()
 
@@ -32,6 +36,7 @@ async def startup():
 
 # Create uploads directory if it doesn't exist
 os.makedirs("uploads", exist_ok=True)
+os.makedirs("uploads/audio", exist_ok=True)
 
 # Mount static files directory
 app.mount("/static", StaticFiles(directory="uploads"), name="static")
@@ -94,6 +99,19 @@ class Message(BaseModel):
 class StreamRequest(BaseModel):
     messages: List[Message]
     persona: str
+    
+class AudioSegmentResult(BaseModel):
+    segment_id: str
+    start_time: int  # in seconds
+    end_time: int  # in seconds
+    transcript: str
+    keywords: List[str]
+    
+class AudioProcessingResult(BaseModel):
+    file_id: str
+    file_url: str
+    segments: List[AudioSegmentResult]
+    total_duration: int  # in seconds
 
 @app.post("/chat")
 async def chat_stream(
@@ -295,6 +313,113 @@ async def mint_nft(request: NFTMintRequest):
             status_code=500,
             detail=f"Failed to mint NFT: {str(e)}"
         )
+
+async def transcribe_audio(audio_file_path: str) -> str:
+    """Transcribe audio file using OpenAI's Whisper API."""
+    try:
+        with open(audio_file_path, "rb") as audio_file:
+            transcript = await openai.audio.transcriptions.create(
+                file=audio_file,
+                model="whisper-1"
+            )
+        return transcript.text
+    except Exception as e:
+        print(f"Error transcribing audio: {str(e)}")
+        return ""
+
+async def extract_keywords(text: str) -> List[str]:
+    """Extract keywords from text using OpenAI API."""
+    try:
+        response = await openai.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "あなたは与えられたテキストから重要なキーワードを抽出するアシスタントです。テキストを分析し、最も重要な5-10個のキーワードをリストとして返してください。"},
+                {"role": "user", "content": f"以下のテキストから重要なキーワードを抽出してください。キーワードのみをカンマ区切りのリストで返してください。\n\n{text}"}
+            ],
+            temperature=0.3,
+            max_tokens=100
+        )
+        keywords_text = response.choices[0].message.content
+        keywords = [keyword.strip() for keyword in keywords_text.split(',')]
+        return keywords
+    except Exception as e:
+        print(f"Error extracting keywords: {str(e)}")
+        return []
+
+async def process_audio_segment(segment_file: str, segment_id: str, start_time: int, end_time: int) -> AudioSegmentResult:
+    """Process a single audio segment: transcribe and extract keywords."""
+    transcript = await transcribe_audio(segment_file)
+    keywords = await extract_keywords(transcript)
+    
+    return AudioSegmentResult(
+        segment_id=segment_id,
+        start_time=start_time,
+        end_time=end_time,
+        transcript=transcript,
+        keywords=keywords
+    )
+
+async def split_audio_and_process(file_path: str, file_id: str, file_url: str) -> AudioProcessingResult:
+    """Split audio file into 30-second segments and process each segment."""
+    try:
+        audio = AudioSegment.from_file(file_path)
+        duration_ms = len(audio)
+        duration_sec = math.ceil(duration_ms / 1000)
+        segment_length_ms = 30 * 1000  # 30 seconds in milliseconds
+        
+        segments = []
+        
+        with tempfile.TemporaryDirectory() as temp_dir:
+            for i in range(0, duration_ms, segment_length_ms):
+                start_ms = i
+                end_ms = min(i + segment_length_ms, duration_ms)
+                
+                segment = audio[start_ms:end_ms]
+                segment_id = f"{file_id}_segment_{i//segment_length_ms}"
+                segment_file = os.path.join(temp_dir, f"{segment_id}.mp3")
+                segment.export(segment_file, format="mp3")
+                
+                segment_result = await process_audio_segment(
+                    segment_file,
+                    segment_id,
+                    start_ms // 1000,  # Convert to seconds
+                    end_ms // 1000     # Convert to seconds
+                )
+                segments.append(segment_result)
+        
+        return AudioProcessingResult(
+            file_id=file_id,
+            file_url=file_url,
+            segments=segments,
+            total_duration=duration_sec
+        )
+    except Exception as e:
+        print(f"Error processing audio: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing audio: {str(e)}")
+
+@app.post("/api/audio/upload", response_model=AudioProcessingResult)
+async def upload_and_process_audio(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    rate_limit: bool = Depends(RateLimiter(times=5, seconds=60))
+):
+    """Upload audio file, save it, and process it in 30-second segments."""
+    try:
+        file_id = str(uuid.uuid4())
+        file_extension = file.filename.split(".")[-1]
+        new_filename = f"{file_id}.{file_extension}"
+        file_path = os.path.join("uploads/audio", new_filename)
+        
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        file_url = f"/static/audio/{new_filename}"
+        
+        result = await split_audio_and_process(file_path, file_id, file_url)
+        
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing audio: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
