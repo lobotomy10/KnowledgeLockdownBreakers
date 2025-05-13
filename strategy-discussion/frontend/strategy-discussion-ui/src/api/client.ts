@@ -59,14 +59,29 @@ export const api = {
 
   async startDiscussion(content: string): Promise<Discussion> {
     try {
+      console.log('Starting discussion with content:', content);
       const response = await fetch(`${API_URL}/discussion/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          content
+          content: content
         }),
       });
-      const data = await handleResponse<{ status: string; discussion: Discussion }>(response);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API error response:', response.status, errorText);
+        throw new APIError(`APIエラー: ${response.status} - ${errorText || '不明なエラーが発生しました'}`);
+      }
+      
+      const data = await response.json();
+      console.log('API response data:', data);
+      
+      if (!data.discussion) {
+        console.error('API response missing discussion data:', data);
+        throw new APIError('APIレスポンスに議論データがありません');
+      }
+      
       return data.discussion;
     } catch (error) {
       console.error('Error starting discussion:', error);
