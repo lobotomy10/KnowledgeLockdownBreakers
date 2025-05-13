@@ -68,21 +68,20 @@ function App() {
       const message = await api.getNextMessage();
       
       setDiscussion(prev => {
-        if (!prev || !prev.is_active) return prev;
+        if (!prev) return prev;
         
         const updatedDiscussion = {
           ...prev,
+          is_active: true, // Ensure discussion remains active
           messages: [...prev.messages, message],
         };
         
-        setTimeout(() => {
-          if (updatedDiscussion.is_active) {
-            getNextMessage();
-          }
-        }, 10000);
-        
         return updatedDiscussion;
       });
+      
+      setTimeout(() => {
+        getNextMessage();
+      }, 10000);
     } catch (error) {
       if (error instanceof APIError) {
         toast({
