@@ -63,7 +63,7 @@ export const api = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          content: content 
+          strategy_document: { content }
         }),
       });
       const data = await handleResponse<{ status: string; discussion: Discussion }>(response);
