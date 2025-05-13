@@ -80,37 +80,56 @@ function App() {
   };
 
   const getNextMessage = async () => {
+    console.log('getNextMessage called, current discussion:', discussion);
+    
     if (messageTimer) {
+      console.log('Clearing existing timer:', messageTimer);
       clearTimeout(messageTimer);
       setMessageTimer(null);
     }
     
-    if (!discussion || !discussion.is_active) {
+    if (!discussion) {
+      console.log('Discussion is null, cannot get next message');
+      return;
+    }
+    
+    if (!discussion.is_active) {
       console.log('Discussion is not active, cannot get next message');
       return;
     }
     
+    console.log('Discussion is active, proceeding to fetch next message');
     setIsLoading(true);
+    
     try {
       console.log('Fetching next message...');
       const message = await api.getNextMessage();
       console.log('Received message:', message);
       
       setDiscussion(prev => {
-        if (!prev) return prev;
+        if (!prev) {
+          console.log('Previous discussion state is null, cannot update');
+          return prev;
+        }
         
-        return {
+        console.log('Updating discussion with new message');
+        const updatedDiscussion = {
           ...prev,
           is_active: true, // Ensure discussion remains active
           messages: [...prev.messages, message],
         };
+        
+        console.log('Updated discussion:', updatedDiscussion);
+        return updatedDiscussion;
       });
       
+      console.log('Setting timer for next message in 10 seconds');
       const timerId = window.setTimeout(() => {
         console.log('Timer triggered, getting next message...');
         getNextMessage();
       }, 10000);
       
+      console.log('New timer ID:', timerId);
       setMessageTimer(timerId);
     } catch (error) {
       console.error('Error getting next message:', error);
