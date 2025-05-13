@@ -17,9 +17,19 @@ function App() {
   const [discussion, setDiscussion] = useState<Discussion | null>(null);
   const [strategyDocument, setStrategyDocument] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [messageTimer, setMessageTimer] = useState<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (messageTimer) {
+        clearTimeout(messageTimer);
+      }
+    };
+  }, [messageTimer]);
 
   useEffect(() => {
     fetchPersonas();
+    setDiscussion(null);
   }, []);
 
   const fetchPersonas = async () => {
@@ -44,44 +54,13 @@ function App() {
     try {
       const discussion = await api.startDiscussion(strategyDocument);
       setDiscussion(discussion);
+      
       // Start automatic message generation after a short delay
-      setTimeout(() => {
+      const timerId = window.setTimeout(() => {
         getNextMessage();
       }, 1000);
-    } catch (error) {
-      if (error instanceof APIError) {
-        toast({
-          variant: "destructive",
-          title: "エラー",
-          description: error.message,
-        });
-      }
-    }
-    setIsLoading(false);
-  };
-
-  const getNextMessage = async () => {
-    if (!discussion?.is_active) return;
-    
-    setIsLoading(true);
-    try {
-      const message = await api.getNextMessage();
       
-      setDiscussion(prev => {
-        if (!prev) return prev;
-        
-        const updatedDiscussion = {
-          ...prev,
-          is_active: true, // Ensure discussion remains active
-          messages: [...prev.messages, message],
-        };
-        
-        return updatedDiscussion;
-      });
-      
-      setTimeout(() => {
-        getNextMessage();
-      }, 10000);
+      setMessageTimer(timerId);
     } catch (error) {
       if (error instanceof APIError) {
         toast({
@@ -95,7 +74,59 @@ function App() {
     }
   };
 
+  const getNextMessage = async () => {
+    if (messageTimer) {
+      clearTimeout(messageTimer);
+      setMessageTimer(null);
+    }
+    
+    if (!discussion || !discussion.is_active) {
+      console.log('Discussion is not active, cannot get next message');
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      console.log('Fetching next message...');
+      const message = await api.getNextMessage();
+      console.log('Received message:', message);
+      
+      setDiscussion(prev => {
+        if (!prev) return prev;
+        
+        return {
+          ...prev,
+          is_active: true, // Ensure discussion remains active
+          messages: [...prev.messages, message],
+        };
+      });
+      
+      const timerId = window.setTimeout(() => {
+        console.log('Timer triggered, getting next message...');
+        getNextMessage();
+      }, 10000);
+      
+      setMessageTimer(timerId);
+    } catch (error) {
+      console.error('Error getting next message:', error);
+      if (error instanceof APIError) {
+        toast({
+          variant: "destructive",
+          title: "エラー",
+          description: error.message,
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const stopDiscussion = async () => {
+    if (messageTimer) {
+      clearTimeout(messageTimer);
+      setMessageTimer(null);
+    }
+    
     try {
       await api.stopDiscussion();
       setDiscussion(prev => prev ? { ...prev, is_active: false } : null);
@@ -139,11 +170,11 @@ function App() {
           <div className="flex justify-end space-x-4">
             <Button
               onClick={startDiscussion}
-              disabled={isLoading || !strategyDocument.trim() || discussion?.is_active}
+              disabled={isLoading || !strategyDocument.trim() || (discussion !== null && discussion.is_active === true)}
             >
               議論を開始
             </Button>
-            {discussion?.is_active && (
+            {discussion && discussion.is_active && (
               <>
                 <Button
                   variant="destructive"
@@ -170,6 +201,12 @@ function App() {
                       document.body.removeChild(a);
                       URL.revokeObjectURL(url);
                     }
+                    
+                    if (messageTimer) {
+                      clearTimeout(messageTimer);
+                      setMessageTimer(null);
+                    }
+                    
                     setDiscussion(null);
                     setStrategyDocument('');
                   }}
