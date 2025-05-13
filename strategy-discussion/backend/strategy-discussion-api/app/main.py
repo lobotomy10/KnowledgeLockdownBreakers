@@ -46,7 +46,7 @@ async def start_discussion(document: StrategyDocument):
     current_discussion = Discussion(strategy_document=document)
     
     # Generate first response automatically
-    personas = persona_manager.get_all_personas()
+    personas = sorted(persona_manager.get_all_personas(), key=lambda p: p.name)
     next_persona = personas[0]
     
     response = await persona_manager.generate_response(
@@ -69,7 +69,8 @@ async def next_message():
     if not current_discussion or not current_discussion.is_active:
         raise HTTPException(status_code=400, detail="No active discussion")
 
-    personas = persona_manager.get_all_personas()
+    personas = sorted(persona_manager.get_all_personas(), key=lambda p: p.name)
+    
     next_persona_index = len(current_discussion.messages) % len(personas)
     next_persona = personas[next_persona_index]
 
