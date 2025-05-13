@@ -19,6 +19,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [messageTimer, setMessageTimer] = useState<number | null>(null);
   const startButtonRef = useRef<HTMLButtonElement>(null);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
     return () => {
@@ -36,6 +37,31 @@ function App() {
     localStorage.removeItem('discussion');
     sessionStorage.removeItem('discussion');
   }, []);
+  
+  useEffect(() => {
+    console.log('Discussion state changed:', discussion);
+    
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    
+    if (discussion && discussion.is_active) {
+      console.log('Setting timer for next message in 10 seconds due to discussion state change');
+      const timerId = window.setTimeout(() => {
+        console.log('Timer triggered from useEffect, getting next message...');
+        getNextMessage();
+      }, 10000);
+      
+      setMessageTimer(timerId);
+      
+      return () => {
+        if (timerId) {
+          clearTimeout(timerId);
+        }
+      };
+    }
+  }, [discussion]);
 
   const fetchPersonas = async () => {
     try {
@@ -58,20 +84,9 @@ function App() {
     setIsLoading(true);
     try {
       const discussion = await api.startDiscussion(strategyDocument);
+      console.log('Setting discussion state directly:', discussion);
       
-      setDiscussion(() => {
-        console.log('Setting discussion state:', discussion);
-        
-        // Start automatic message generation after the state has been updated
-        const timerId = window.setTimeout(() => {
-          console.log('Timer triggered from startDiscussion, getting next message...');
-          getNextMessage();
-        }, 1000);
-        
-        setMessageTimer(timerId);
-        
-        return discussion;
-      });
+      setDiscussion(discussion);
     } catch (error) {
       if (error instanceof APIError) {
         toast({
