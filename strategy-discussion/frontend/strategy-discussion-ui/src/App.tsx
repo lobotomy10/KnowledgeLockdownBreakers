@@ -58,14 +58,20 @@ function App() {
     setIsLoading(true);
     try {
       const discussion = await api.startDiscussion(strategyDocument);
-      setDiscussion(discussion);
       
-      // Start automatic message generation after a short delay
-      const timerId = window.setTimeout(() => {
-        getNextMessage();
-      }, 1000);
-      
-      setMessageTimer(timerId);
+      setDiscussion(() => {
+        console.log('Setting discussion state:', discussion);
+        
+        // Start automatic message generation after the state has been updated
+        const timerId = window.setTimeout(() => {
+          console.log('Timer triggered from startDiscussion, getting next message...');
+          getNextMessage();
+        }, 1000);
+        
+        setMessageTimer(timerId);
+        
+        return discussion;
+      });
     } catch (error) {
       if (error instanceof APIError) {
         toast({
