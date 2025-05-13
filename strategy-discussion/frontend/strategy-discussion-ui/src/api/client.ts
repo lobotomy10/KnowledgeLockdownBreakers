@@ -1,6 +1,6 @@
 import { Persona, Discussion, Message } from '../types';
 
-const API_URL = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) || 'http://localhost:8000';
+const API_URL = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) || 'https://app-usmxbsxp.fly.dev';
 
 export class APIError extends Error {
   constructor(message: string) {
