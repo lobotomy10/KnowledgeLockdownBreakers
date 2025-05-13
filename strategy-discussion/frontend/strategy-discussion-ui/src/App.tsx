@@ -30,6 +30,7 @@ function App() {
   useEffect(() => {
     fetchPersonas();
     setDiscussion(null);
+    console.log('App initialized, discussion set to null');
   }, []);
 
   const fetchPersonas = async () => {
@@ -170,7 +171,7 @@ function App() {
           <div className="flex justify-end space-x-4">
             <Button
               onClick={startDiscussion}
-              disabled={isLoading || !strategyDocument.trim() || (discussion !== null && discussion.is_active === true)}
+              disabled={isLoading || !strategyDocument.trim()}
             >
               議論を開始
             </Button>
