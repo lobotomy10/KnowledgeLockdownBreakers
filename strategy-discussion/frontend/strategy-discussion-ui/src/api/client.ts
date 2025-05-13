@@ -62,9 +62,11 @@ export const api = {
       const response = await fetch(`${API_URL}/discussion/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ 
+          content: content 
+        }),
       });
-      const data = await handleResponse<{ discussion: Discussion }>(response);
+      const data = await handleResponse<{ status: string; discussion: Discussion }>(response);
       return data.discussion;
     } catch (error) {
       console.error('Error starting discussion:', error);
