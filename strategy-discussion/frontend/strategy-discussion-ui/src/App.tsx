@@ -145,7 +145,7 @@ function App() {
                   variant="outline"
                   onClick={() => {
                     if (discussion?.messages.length && window.confirm('議論内容をテキストファイルとして保存しますか？')) {
-                      const text = `戦略文書:\n${discussion.strategy_document.content}\n\n議論内容:\n` + 
+                      const text = `戦略文書:\n${discussion.strategy_document.content}\n\n議論内容:\n` +
                         discussion.messages
                           .map(m => `${m.persona_name}: ${m.content}`)
                           .join('\n\n');
