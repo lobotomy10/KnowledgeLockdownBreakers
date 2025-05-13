@@ -64,14 +64,19 @@ function App() {
     setIsLoading(true);
     try {
       const message = await api.getNextMessage();
-      setDiscussion(prev => prev ? {
-        ...prev,
-        messages: [...prev.messages, message],
-      } : null);
-      // Continue automatic message generation
-      if (discussion?.is_active) {
-        setTimeout(getNextMessage, 1000);
-      }
+      setDiscussion(prev => {
+        const updatedDiscussion = prev ? {
+          ...prev,
+          messages: [...prev.messages, message],
+        } : null;
+        
+        // Continue automatic message generation with the updated state
+        if (updatedDiscussion?.is_active) {
+          setTimeout(getNextMessage, 1000);
+        }
+        
+        return updatedDiscussion;
+      });
     } catch (error) {
       if (error instanceof APIError) {
         toast({
