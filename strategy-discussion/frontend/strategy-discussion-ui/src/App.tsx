@@ -70,17 +70,19 @@ function App() {
       setDiscussion(prev => {
         if (!prev || !prev.is_active) return prev;
         
-        return {
+        const updatedDiscussion = {
           ...prev,
           messages: [...prev.messages, message],
         };
-      });
-      
-      if (discussion?.is_active) {
+        
         setTimeout(() => {
-          getNextMessage();
+          if (updatedDiscussion.is_active) {
+            getNextMessage();
+          }
         }, 10000);
-      }
+        
+        return updatedDiscussion;
+      });
     } catch (error) {
       if (error instanceof APIError) {
         toast({
