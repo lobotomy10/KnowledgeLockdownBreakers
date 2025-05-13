@@ -44,8 +44,10 @@ function App() {
     try {
       const discussion = await api.startDiscussion(strategyDocument);
       setDiscussion(discussion);
-      // Start automatic message generation
-      setTimeout(getNextMessage, 1000);
+      // Start automatic message generation after a short delay
+      setTimeout(() => {
+        getNextMessage();
+      }, 1000);
     } catch (error) {
       if (error instanceof APIError) {
         toast({
@@ -60,27 +62,23 @@ function App() {
 
   const getNextMessage = async () => {
     if (!discussion?.is_active) return;
-
+    
     setIsLoading(true);
     try {
       const message = await api.getNextMessage();
       
       setDiscussion(prev => {
-        if (!prev) return null;
+        if (!prev || !prev.is_active) return prev;
         
-        const updatedDiscussion = {
+        return {
           ...prev,
           messages: [...prev.messages, message],
         };
-        
-        return updatedDiscussion;
       });
       
       if (discussion?.is_active) {
         setTimeout(() => {
-          if (discussion?.is_active) {
-            getNextMessage();
-          }
+          getNextMessage();
         }, 10000);
       }
     } catch (error) {
