@@ -2,7 +2,7 @@ import { Persona } from '../types';
 import { Card, CardHeader, CardContent } from './ui/card';
 import { PersonaSettings } from './PersonaSettings';
 import { api, APIError } from '../api/client';
-import { toast } from '../components/ui/use-toast';
+import { toast } from '../lib/toast';
 
 interface PersonaCardProps {
   persona: Persona;
@@ -51,8 +51,8 @@ export function PersonaCard({ persona }: PersonaCardProps) {
             <span className="text-sm text-gray-600">{persona.position}</span>
           </div>
           <div>
-            <span className="text-sm font-medium">詳細：</span>
-            <span className="text-sm text-gray-600">{persona.details}</span>
+            <span className="text-sm font-medium">発言スタイル：</span>
+            <span className="text-sm text-gray-600">{persona.speaking_style}</span>
           </div>
           <div className="pt-2">
             <PersonaSettings persona={persona} onUpdate={handleUpdatePersona} />

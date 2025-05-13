@@ -52,11 +52,11 @@ export function PersonaSettings({ persona, onUpdate }: PersonaSettingsProps) {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">詳細：</label>
+            <label className="text-sm font-medium">発言スタイル：</label>
             <Textarea
-              value={editedPersona.details}
-              onChange={(e) => setEditedPersona({ ...editedPersona, details: e.target.value })}
-              placeholder="発言スタイルなど"
+              value={editedPersona.speaking_style}
+              onChange={(e) => setEditedPersona({ ...editedPersona, speaking_style: e.target.value })}
+              placeholder="論理的で分析的な話し方など"
               maxLength={200}
               rows={6}
               className="w-full min-h-[150px] resize-vertical"

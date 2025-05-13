@@ -17,7 +17,7 @@ app.add_middleware(
 )
 
 persona_manager = PersonaManager()
-current_discussion: Discussion = None
+current_discussion: Discussion | None = None
 
 @app.get("/healthz")
 async def healthz():
