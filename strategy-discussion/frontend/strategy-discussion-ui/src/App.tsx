@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Persona, Discussion } from './types';
 import { PersonaCard } from './components/PersonaCard';
 import { ChatMessage } from './components/ChatMessage';
@@ -18,6 +18,7 @@ function App() {
   const [strategyDocument, setStrategyDocument] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [messageTimer, setMessageTimer] = useState<number | null>(null);
+  const startButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     return () => {
@@ -31,6 +32,9 @@ function App() {
     fetchPersonas();
     setDiscussion(null);
     console.log('App initialized, discussion set to null');
+    
+    localStorage.removeItem('discussion');
+    sessionStorage.removeItem('discussion');
   }, []);
 
   const fetchPersonas = async () => {
@@ -170,6 +174,28 @@ function App() {
           />
           <div className="flex justify-end space-x-4">
             <Button
+              onClick={() => {
+                console.log('Debug button clicked');
+                console.log('isLoading:', isLoading);
+                console.log('strategyDocument:', strategyDocument);
+                console.log('discussion:', discussion);
+                
+                if (startButtonRef.current) {
+                  startButtonRef.current.disabled = false;
+                  console.log('Start button forcibly enabled');
+                }
+                
+                if (strategyDocument.trim()) {
+                  startDiscussion();
+                }
+              }}
+              variant="outline"
+              className="mr-2"
+            >
+              デバッグ
+            </Button>
+            <Button
+              ref={startButtonRef}
               onClick={startDiscussion}
               disabled={isLoading || !strategyDocument.trim()}
             >
