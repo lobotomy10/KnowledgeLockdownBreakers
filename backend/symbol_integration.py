@@ -43,8 +43,31 @@ SYMBOL_NODE = os.getenv("SYMBOL_NODE", "https://sym-test.opening-line.jp:3001")
 SYMBOL_NETWORK = int(os.getenv("SYMBOL_NETWORK", "152"))
 SYMBOL_METADATA_KEY = os.getenv("SYMBOL_METADATA_KEY", "knowledge_card")
 
-symbol_cards_cache = {}
-symbol_users_cache = {}
+symbol_cards_cache = {
+    "1": {
+        "id": "1",
+        "title": "Introduction to Blockchain",
+        "content": "Blockchain is a distributed ledger technology...",
+        "author": "satoshi",
+        "symbolAddress": "TDPFWJT-XVPWMJ-WNVUNR-BYKJCZ-LTLOTM-DPCXPO-JJYY",
+        "createdAt": "2025-05-01T12:00:00Z"
+    },
+    "2": {
+        "id": "2",
+        "title": "Symbol Blockchain Overview",
+        "content": "Symbol is a secure and business-ready blockchain...",
+        "author": "nemtech",
+        "symbolAddress": "TDPFWJT-XVPWMJ-WNVUNR-BYKJCZ-LTLOTM-DPCXPO-JJYY",
+        "createdAt": "2025-05-02T14:30:00Z"
+    }
+}
+
+symbol_users_cache = {
+    "TDPFWJT-XVPWMJ-WNVUNR-BYKJCZ-LTLOTM-DPCXPO-JJYY": {
+        "username": "satoshi",
+        "symbolAddress": "TDPFWJT-XVPWMJ-WNVUNR-BYKJCZ-LTLOTM-DPCXPO-JJYY"
+    }
+}
 
 def decrypt_caesar_cipher(encrypted_data: str) -> str:
     """
@@ -70,7 +93,7 @@ async def fetch_from_symbol_api(endpoint: str) -> Dict[str, Any]:
     try:
         
         if endpoint == "cards":
-            return list(symbol_cards_cache.values()) if symbol_cards_cache else []
+            return {"cards": list(symbol_cards_cache.values()) if symbol_cards_cache else []}
         elif endpoint.startswith("cards/"):
             card_id = endpoint.split("/")[1]
             return symbol_cards_cache.get(card_id, {})
@@ -89,25 +112,7 @@ async def get_symbol_cards():
     """
     try:
         
-        if not symbol_cards_cache:
-            symbol_cards_cache = {
-                "1": {
-                    "id": "1",
-                    "title": "Introduction to Blockchain",
-                    "content": "Blockchain is a distributed ledger technology...",
-                    "author": "satoshi",
-                    "symbolAddress": "TDPFWJT-XVPWMJ-WNVUNR-BYKJCZ-LTLOTM-DPCXPO-JJYY",
-                    "createdAt": "2025-05-01T12:00:00Z"
-                },
-                "2": {
-                    "id": "2",
-                    "title": "Symbol Blockchain Overview",
-                    "content": "Symbol is a secure and business-ready blockchain...",
-                    "author": "nemtech",
-                    "symbolAddress": "TDPFWJT-XVPWMJ-WNVUNR-BYKJCZ-LTLOTM-DPCXPO-JJYY",
-                    "createdAt": "2025-05-02T14:30:00Z"
-                }
-            }
+        pass
         
         return list(symbol_cards_cache.values())
     except Exception as e:
@@ -136,13 +141,7 @@ async def get_symbol_user(symbol_address: str):
     """
     try:
         
-        if not symbol_users_cache:
-            symbol_users_cache = {
-                "TDPFWJT-XVPWMJ-WNVUNR-BYKJCZ-LTLOTM-DPCXPO-JJYY": {
-                    "username": "satoshi",
-                    "symbolAddress": "TDPFWJT-XVPWMJ-WNVUNR-BYKJCZ-LTLOTM-DPCXPO-JJYY"
-                }
-            }
+        pass
         
         if symbol_address not in symbol_users_cache:
             raise HTTPException(status_code=404, detail=f"Symbol user {symbol_address} not found")
