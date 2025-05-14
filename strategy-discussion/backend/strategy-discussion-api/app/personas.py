@@ -73,14 +73,14 @@ class PersonaManager:
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": context},
-                    {"role": "user", "content": "この戦略について、あなたの立場からの意見を150文字以内で述べてください。"}
+                    {"role": "user", "content": "この戦略について、あなたの立場からの意見を300文字以内で述べてください。必ず文章を完結させてください。"}
                 ],
-                max_tokens=200,
+                max_tokens=400,
                 temperature=0.7
             )
             
             if hasattr(response.choices[0].message, 'content'):
-                return response.choices[0].message.content[:150]  # 150文字制限を確実に守る
+                return response.choices[0].message.content  # 文章が途中で切れないように完全な応答を返す
             return "申し訳ありません。応答の生成に失敗しました。"
             
         except Exception as e:
