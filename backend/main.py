@@ -28,8 +28,17 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 # Configure Redis and rate limiting
 @app.on_event("startup")
 async def startup():
-    redis = await aioredis.from_url("redis://localhost", encoding="utf-8", decode_responses=True)
-    await FastAPILimiter.init(redis)
+    try:
+        redis = await aioredis.from_url("redis://localhost", encoding="utf-8", decode_responses=True)
+        await FastAPILimiter.init(redis)
+        print("Redis connected successfully")
+    except Exception as e:
+        print(f"Redis connection failed: {e}")
+        print("Rate limiting disabled")
+        class DummyLimiter:
+            async def redis_request(self, *args, **kwargs):
+                return True
+        FastAPILimiter._redis = DummyLimiter()
 
 # Create uploads directory if it doesn't exist
 os.makedirs("uploads", exist_ok=True)

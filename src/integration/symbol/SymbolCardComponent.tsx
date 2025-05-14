@@ -90,7 +90,35 @@ export default function SymbolCardComponent({
         <Card key={card.id} className="p-4">
           <h3 className="text-lg font-semibold">{card.title}</h3>
           <p className="text-sm text-gray-500">By {card.author} ({card.symbolAddress})</p>
-          <p className="mt-2">{card.content}</p>
+          
+          {/* Image or Video */}
+          {card.imageUrl && (
+            <div className="mt-3">
+              <img src={card.imageUrl} alt={card.title} className="w-full rounded-md" />
+            </div>
+          )}
+          
+          {card.videoUrl && (
+            <div className="mt-3">
+              <video 
+                src={card.videoUrl} 
+                controls 
+                className="w-full rounded-md"
+                poster={card.imageUrl} // Use image as poster if available
+              />
+            </div>
+          )}
+          
+          {/* Content Preview */}
+          <p className="mt-3 text-gray-700">{card.content}</p>
+          
+          {/* Detailed Content */}
+          {card.details && (
+            <div className="mt-3 p-3 bg-gray-50 rounded-md">
+              <h4 className="text-md font-medium mb-2">詳細 / Details</h4>
+              <p className="text-sm">{card.details}</p>
+            </div>
+          )}
           
           <div className="mt-4 flex justify-end">
             <Button

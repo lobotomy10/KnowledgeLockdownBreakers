@@ -24,6 +24,9 @@ class SymbolCard(BaseModel):
     author: str
     symbolAddress: str
     createdAt: str
+    imageUrl: Optional[str] = None
+    videoUrl: Optional[str] = None
+    details: Optional[str] = None
 
 class SymbolUser(BaseModel):
     username: str
@@ -47,18 +50,33 @@ symbol_cards_cache = {
     "1": {
         "id": "1",
         "title": "Introduction to Blockchain",
-        "content": "Blockchain is a distributed ledger technology...",
+        "content": "Blockchain is a distributed ledger technology that enables secure, transparent transactions without central authorities.",
         "author": "satoshi",
         "symbolAddress": "TDPFWJT-XVPWMJ-WNVUNR-BYKJCZ-LTLOTM-DPCXPO-JJYY",
-        "createdAt": "2025-05-01T12:00:00Z"
+        "createdAt": "2025-05-01T12:00:00Z",
+        "imageUrl": "https://images.unsplash.com/photo-1639762681057-408e52192e55?q=80&w=2832&auto=format&fit=crop",
+        "details": "ブロックチェーンは、中央集権的な管理者なしで安全かつ透明性の高い取引を可能にする分散型台帳技術です。各ブロックには複数の取引記録が含まれ、暗号化されたハッシュによって前のブロックと連結されています。この技術は、仮想通貨、スマートコントラクト、サプライチェーン管理など、様々な分野で革新をもたらしています。"
     },
     "2": {
         "id": "2",
         "title": "Symbol Blockchain Overview",
-        "content": "Symbol is a secure and business-ready blockchain...",
+        "content": "Symbol is a secure and business-ready blockchain platform with advanced features for enterprise use.",
         "author": "nemtech",
         "symbolAddress": "TDPFWJT-XVPWMJ-WNVUNR-BYKJCZ-LTLOTM-DPCXPO-JJYY",
-        "createdAt": "2025-05-02T14:30:00Z"
+        "createdAt": "2025-05-02T14:30:00Z",
+        "imageUrl": "https://images.unsplash.com/photo-1642052502780-8ee67c2c714c?q=80&w=2787&auto=format&fit=crop",
+        "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "details": "Symbolは、エンタープライズ向けの高度な機能を備えた安全なブロックチェーンプラットフォームです。高速なトランザクション処理、プラグイン可能なスマートコントラクト、マルチレベルのマルチシグ機能を提供します。また、エネルギー効率の高いPoS+アルゴリズムを採用し、環境に優しい設計となっています。"
+    },
+    "3": {
+        "id": "3",
+        "title": "NFTs and Digital Ownership",
+        "content": "Non-Fungible Tokens represent unique digital assets and enable verifiable ownership on blockchain.",
+        "author": "cryptoart",
+        "symbolAddress": "TDPFWJT-XVPWMJ-WNVUNR-BYKJCZ-LTLOTM-DPCXPO-JJYY",
+        "createdAt": "2025-05-03T09:15:00Z",
+        "imageUrl": "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=2874&auto=format&fit=crop",
+        "details": "NFT（非代替性トークン）は、デジタルアートやコレクティブル、ゲーム内アイテムなどのユニークなデジタル資産を表現し、ブロックチェーン上で検証可能な所有権を可能にします。各NFTは固有の識別子を持ち、その真正性と希少性を保証します。"
     }
 }
 
@@ -156,6 +174,7 @@ async def get_symbol_user(symbol_address: str):
 async def convert_to_nft(request: ConvertToNFTRequest):
     """
     Converts a Symbol card to an Ethereum NFT
+    Only the title is stored on the Symbol blockchain as requested
     """
     try:
         if request.cardId not in symbol_cards_cache:
@@ -163,6 +182,15 @@ async def convert_to_nft(request: ConvertToNFTRequest):
         
         card = symbol_cards_cache[request.cardId]
         
+        # Only send the title to Symbol blockchain
+        symbol_data = {
+            "title": card["title"]
+        }
+        
+        print(f"Sending only title to Symbol blockchain: {symbol_data}")
+        
+        # In a real implementation, this would call the Symbol SDK
+        # to store only the title on the Symbol blockchain
         
         token_id = f"eth-{request.cardId}"
         
