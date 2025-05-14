@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus, Heart, X, Coins } from "lucide-react"
 import CreateCard from './CreateCard'
+import SymbolIntegration from './SymbolIntegration'
 
 interface KnowledgeCard {
   id: string;
@@ -16,6 +17,7 @@ function App() {
   const [tokens, setTokens] = useState(15)
   const [currentCardIndex, setCurrentCardIndex] = useState(0)
   const [showCreateCard, setShowCreateCard] = useState(false)
+  const [showSymbolIntegration, setShowSymbolIntegration] = useState(false)
   
   // Mock data - in production this would come from API
   const cards: KnowledgeCard[] = [
@@ -105,8 +107,18 @@ function App() {
           </div>
         )}
 
-        {/* Create New Card Button */}
-        <div className="fixed bottom-8 right-8">
+        {/* Action Buttons */}
+        <div className="fixed bottom-8 right-8 flex flex-col gap-4">
+          {/* Symbol Integration Button */}
+          <Button 
+            size="lg" 
+            className="rounded-full p-6 bg-purple-500 hover:bg-purple-600"
+            onClick={() => setShowSymbolIntegration(true)}
+          >
+            <span className="text-lg">🔄</span>
+          </Button>
+          
+          {/* Create New Card Button */}
           <Button 
             size="lg" 
             className="rounded-full p-6"
@@ -114,6 +126,7 @@ function App() {
           >
             <Plus className="h-6 w-6" />
           </Button>
+          
           {showCreateCard && (
             <CreateCard
               onClose={() => setShowCreateCard(false)}
@@ -121,6 +134,12 @@ function App() {
                 // Card saving is now handled in CreateCard component
                 setShowCreateCard(false)
               }}
+            />
+          )}
+          
+          {showSymbolIntegration && (
+            <SymbolIntegration
+              onClose={() => setShowSymbolIntegration(false)}
             />
           )}
         </div>
