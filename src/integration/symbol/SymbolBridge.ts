@@ -19,6 +19,9 @@ export interface SymbolCard {
   author: string;
   symbolAddress: string;
   createdAt: string;
+  imageUrl?: string;
+  videoUrl?: string;
+  details?: string;
 }
 
 export interface SymbolUser {

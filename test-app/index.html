@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Symbol Integration Test</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+  <div id="root" class="container mx-auto p-4"></div>
+
+  <script type="text/babel">
+    // Simple test app to demonstrate Symbol integration
+    function App() {
+      const [showSymbolIntegration, setShowSymbolIntegration] = React.useState(false);
+      const [cards, setCards] = React.useState([]);
+      const [loading, setLoading] = React.useState(false);
+      const [error, setError] = React.useState(null);
+      
+      const fetchCards = async () => {
+        setLoading(true);
+        try {
+          const response = await axios.get('http://localhost:8000/api/symbol/cards');
+          setCards(response.data);
+          setError(null);
+        } catch (err) {
+          console.error('Failed to fetch cards:', err);
+          setError('Failed to fetch Symbol cards. Make sure the backend is running.');
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      React.useEffect(() => {
+        fetchCards();
+      }, []);
+      
+      return (
+        <div className="min-h-screen">
+          <header className="bg-white shadow-sm p-4 mb-6">
+            <h1 className="text-2xl font-bold">Symbol Integration Test</h1>
+          </header>
+          
+          <main className="max-w-4xl mx-auto">
+            <div className="bg-blue-50 p-4 rounded-lg mb-6">
+              <h2 className="text-lg font-semibold">Symbol Blockchain Integration</h2>
+              <p>This is a test app to demonstrate the integration between Symbol blockchain and Ethereum.</p>
+            </div>
+            
+            {loading ? (
+              <div className="text-center p-8">Loading Symbol cards...</div>
+            ) : error ? (
+              <div className="bg-red-50 p-4 rounded-lg text-red-600">{error}</div>
+            ) : (
+              <div className="space-y-4">
+                <h2 className="text-xl font-bold">Symbol Knowledge Cards</h2>
+                
+                {cards && cards.length > 0 ? (
+                  cards.map(card => (
+                    <div key={card.id} className="bg-white p-4 rounded-lg shadow">
+                      <h3 className="text-lg font-semibold">{card.title}</h3>
+                      <p className="text-sm text-gray-500">By {card.author} ({card.symbolAddress})</p>
+                      
+                      {/* Image or Video */}
+                      {card.imageUrl && (
+                        <div className="mt-3">
+                          <img src={card.imageUrl} alt={card.title} className="w-full rounded-md" />
+                        </div>
+                      )}
+                      
+                      {card.videoUrl && (
+                        <div className="mt-3">
+                          <video 
+                            src={card.videoUrl} 
+                            controls 
+                            className="w-full rounded-md"
+                            poster={card.imageUrl} // Use image as poster if available
+                          />
+                        </div>
+                      )}
+                      
+                      {/* Content Preview */}
+                      <p className="mt-3 text-gray-700">{card.content}</p>
+                      
+                      {/* Detailed Content */}
+                      {card.details && (
+                        <div className="mt-3 p-3 bg-gray-50 rounded-md">
+                          <h4 className="text-md font-medium mb-2">詳細 / Details</h4>
+                          <p className="text-sm">{card.details}</p>
+                        </div>
+                      )}
+                      
+                      <div className="mt-4 flex justify-end">
+                        <button
+                          onClick={async () => {
+                            try {
+                              const response = await axios.post('http://localhost:8000/api/symbol/convert-to-nft', {
+                                cardId: card.id,
+                                ethereumAddress: '0x1234567890123456789012345678901234567890' // Mock address
+                              });
+                              
+                              if (response.data.success) {
+                                alert(`Successfully converted to NFT! Token ID: ${response.data.tokenId}`);
+                              } else {
+                                alert(`Failed to convert: ${response.data.error}`);
+                              }
+                            } catch (err) {
+                              console.error('Error converting to NFT:', err);
+                              alert('Failed to convert to NFT. See console for details.');
+                            }
+                          }}
+                          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+                        >
+                          Convert to NFT
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center p-8 text-gray-500">
+                    No Symbol cards found. Make sure the backend is running.
+                  </div>
+                )}
+              </div>
+            )}
+          </main>
+        </div>
+      );
+    }
+    
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
