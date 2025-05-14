@@ -51,7 +51,7 @@ export class SymbolBridge {
   async fetchSymbolCards(): Promise<SymbolCard[]> {
     try {
       const response = await axios.get(`${this.config.apiUrl}/api/symbol/cards`);
-      return response.data;
+      return response.data.cards || [];
     } catch (error) {
       console.error('Failed to fetch Symbol cards:', error);
       throw new Error('Failed to fetch Symbol cards');
