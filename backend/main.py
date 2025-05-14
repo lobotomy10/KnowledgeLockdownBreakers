@@ -16,6 +16,7 @@ import json
 from redis import asyncio as aioredis
 from fastapi_limiter import FastAPILimiter
 from fastapi_limiter.depends import RateLimiter
+from symbol_integration import router as symbol_router
 
 load_dotenv()
 
@@ -44,6 +45,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(symbol_router)
 
 # Mock database (will be replaced with PostgreSQL)
 users = {}
