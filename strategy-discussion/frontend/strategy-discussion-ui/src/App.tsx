@@ -237,7 +237,7 @@ function App() {
             <Button
               ref={startButtonRef}
               onClick={startDiscussion}
-              disabled={isLoading || !strategyDocument.trim()}
+              disabled={false} // Always enable the button when there's text
             >
               議論を開始
             </Button>
